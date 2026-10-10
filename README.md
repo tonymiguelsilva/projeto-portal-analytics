@@ -14,12 +14,13 @@ O projeto suporta dois modos de fonte de dados:
 - **Demo**: Utiliza arquivos CSV/JSON locais (sem dependência do GCP)
 - **BigQuery**: Integração com o Google BigQuery (quando explicitamente configurado)
 
-## Funcionalidades
+## Estado atual
 
-- Login simulado com perfis Admin e Comercial
-- Ambientes DEV e PROD separados por configuração
-- Zero custo recorrente obrigatório (modo demo funciona totalmente localmente)
-- Versionamento com Git (branch `main` estável)
+- API FastAPI com `GET /` e `GET /health`.
+- Fonte Demo CSV/JSON selecionada por padrão e carregada sob demanda.
+- API analítica com visão geral, tendências, agregações comerciais, indicadores operacionais, filtros e detalhe de pedido.
+- Configuração de `DATA_SOURCE` e `ENVIRONMENT` independente; BigQuery ainda não está implementado.
+- Dados fictícios locais, sem dados pessoais ou sensíveis.
 
 ## Estrutura de Pastas
 
@@ -29,21 +30,43 @@ projeto_portal_analytics/
 ├── .env.example
 ├── README.md
 ├── backend/
-│   └── app/
-│       └── main.py
-├── frontend/
+│   ├── app/
+│   │   ├── api/
+│   │   ├── core/
+│   │   ├── schemas/
+│   │   ├── services/
+│   │   └── main.py
+│   ├── tests/
+│   └── requirements.txt
 ├── data/
 │   └── demo/
+│       └── orders.csv
+├── frontend/
 └── docs/
-    └── arquitetura.md
+    └── analytics-data-contract.md
 ```
 
-## Como Executar (Modo Demo)
+## Executar a API Demo
 
-1. Clone o repositório
-2. Copie `.env.example` para `.env` e ajuste as variáveis se necessário
-3. Não é necessário instalar dependências nesta fase inicial
-4. O backend e frontend serão implementados nas etapas posteriores
+Na pasta `backend/`, com as dependências de `requirements.txt` disponíveis:
+
+```powershell
+python -m uvicorn app.main:app --reload
+```
+
+A documentação interativa fica em `/docs`. O modo Demo não acessa serviços de nuvem. O arquivo `data/demo/orders.csv` é necessário para consultas analíticas, mas não para iniciar a API.
+
+## Testes
+
+Na pasta `backend/`:
+
+```powershell
+python -m unittest discover -s tests -v
+```
+
+## Contrato Analítico
+
+Granularidade, campos, fórmulas dos KPIs, denominadores, filtros e respostas de erro estão descritos em [`docs/analytics-data-contract.md`](docs/analytics-data-contract.md).
 
 ## Licença
 

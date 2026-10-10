@@ -1,0 +1,37 @@
+order_id,order_date,region,sales_channel,product_category,customer_segment,units,gross_revenue,discount_amount,cost_amount,status,promised_delivery_date,shipped_at,delivered_at
+ORD-2025-10-001,2025-10-03,Sudeste,online,Equipamentos,PME,2,1200.00,50.00,700.00,delivered,2025-10-08,2025-10-04,2025-10-06
+ORD-2025-10-002,2025-10-10,Sul,loja,Casa,Médio porte,4,800.00,20.00,500.00,delivered,2025-10-15,2025-10-11,2025-10-17
+ORD-2025-10-003,2025-10-20,Nordeste,parceiro,Escritório,Enterprise,1,600.00,0.00,350.00,cancelled,2025-10-25,,
+ORD-2025-11-001,2025-11-03,Centro-Oeste,loja,Acessórios,PME,5,950.00,30.00,560.00,delivered,2025-11-08,2025-11-04,2025-11-06
+ORD-2025-11-002,2025-11-10,Norte,parceiro,Equipamentos,Médio porte,1,1450.00,75.00,900.00,delivered,2025-11-15,2025-11-11,2025-11-17
+ORD-2025-11-003,2025-11-20,Sudeste,online,Casa,Enterprise,3,720.00,20.00,430.00,pending,2025-11-25,,
+ORD-2025-12-001,2025-12-03,Sul,parceiro,Escritório,PME,2,1320.00,60.00,800.00,delivered,2025-12-08,2025-12-04,2025-12-06
+ORD-2025-12-002,2025-12-10,Nordeste,online,Acessórios,Médio porte,6,1080.00,40.00,620.00,delivered,2025-12-15,2025-12-11,2025-12-13
+ORD-2025-12-003,2025-12-20,Centro-Oeste,loja,Equipamentos,Enterprise,1,1650.00,50.00,980.00,shipped,2025-12-25,2025-12-21,
+ORD-2026-01-001,2026-01-03,Norte,online,Casa,PME,3,990.00,30.00,590.00,delivered,2026-01-08,2026-01-04,2026-01-06
+ORD-2026-01-002,2026-01-10,Sudeste,loja,Escritório,Médio porte,2,1180.00,80.00,690.00,delivered,2026-01-15,2026-01-11,2026-01-17
+ORD-2026-01-003,2026-01-20,Sul,parceiro,Acessórios,Enterprise,7,840.00,40.00,480.00,cancelled,2026-01-25,,
+ORD-2026-02-001,2026-02-03,Nordeste,loja,Equipamentos,PME,1,1550.00,50.00,930.00,delivered,2026-02-08,2026-02-04,2026-02-06
+ORD-2026-02-002,2026-02-10,Centro-Oeste,parceiro,Casa,Médio porte,5,1250.00,75.00,740.00,delivered,2026-02-15,2026-02-11,2026-02-13
+ORD-2026-02-003,2026-02-20,Norte,online,Escritório,Enterprise,2,920.00,20.00,540.00,pending,2026-02-25,,
+ORD-2026-03-001,2026-03-03,Sudeste,parceiro,Acessórios,PME,4,1040.00,40.00,610.00,delivered,2026-03-08,2026-03-04,2026-03-06
+ORD-2026-03-002,2026-03-10,Sul,online,Equipamentos,Médio porte,2,1780.00,80.00,1080.00,delivered,2026-03-15,2026-03-11,2026-03-17
+ORD-2026-03-003,2026-03-20,Nordeste,loja,Casa,Enterprise,3,870.00,30.00,510.00,shipped,2026-03-25,2026-03-21,
+ORD-2026-04-001,2026-04-03,Centro-Oeste,online,Escritório,PME,3,1260.00,60.00,760.00,delivered,2026-04-08,2026-04-04,2026-04-06
+ORD-2026-04-002,2026-04-10,Norte,loja,Acessórios,Médio porte,8,1440.00,40.00,830.00,delivered,2026-04-15,2026-04-11,2026-04-13
+ORD-2026-04-003,2026-04-20,Sudeste,parceiro,Equipamentos,Enterprise,1,1900.00,100.00,1120.00,cancelled,2026-04-25,,
+ORD-2026-05-001,2026-05-03,Sul,loja,Casa,PME,4,1160.00,40.00,690.00,delivered,2026-05-08,2026-05-04,2026-05-06
+ORD-2026-05-002,2026-05-10,Nordeste,parceiro,Escritório,Médio porte,2,1520.00,70.00,910.00,delivered,2026-05-15,2026-05-11,2026-05-17
+ORD-2026-05-003,2026-05-20,Centro-Oeste,online,Acessórios,Enterprise,5,1000.00,50.00,580.00,pending,2026-05-25,,
+ORD-2026-06-001,2026-06-03,Norte,parceiro,Equipamentos,PME,2,1680.00,80.00,1010.00,delivered,2026-06-08,2026-06-04,2026-06-06
+ORD-2026-06-002,2026-06-10,Sudeste,online,Casa,Médio porte,6,1380.00,60.00,810.00,delivered,2026-06-15,2026-06-11,2026-06-13
+ORD-2026-06-003,2026-06-20,Sul,loja,Escritório,Enterprise,2,1240.00,40.00,730.00,shipped,2026-06-25,2026-06-21,
+ORD-2026-07-001,2026-07-03,Nordeste,online,Acessórios,PME,5,1350.00,50.00,790.00,delivered,2026-07-08,2026-07-04,2026-07-06
+ORD-2026-07-002,2026-07-10,Centro-Oeste,loja,Equipamentos,Médio porte,1,1990.00,90.00,1200.00,delivered,2026-07-15,2026-07-11,2026-07-17
+ORD-2026-07-003,2026-07-20,Norte,parceiro,Casa,Enterprise,3,1110.00,60.00,640.00,cancelled,2026-07-25,,
+ORD-2026-08-001,2026-08-03,Sudeste,loja,Escritório,PME,2,1480.00,80.00,880.00,delivered,2026-08-08,2026-08-04,2026-08-06
+ORD-2026-08-002,2026-08-10,Sul,parceiro,Acessórios,Médio porte,7,1610.00,70.00,940.00,delivered,2026-08-15,2026-08-11,2026-08-13
+ORD-2026-08-003,2026-08-20,Nordeste,online,Equipamentos,Enterprise,2,1820.00,120.00,1080.00,pending,2026-08-25,,
+ORD-2026-09-001,2026-09-03,Centro-Oeste,parceiro,Casa,PME,4,1560.00,60.00,920.00,delivered,2026-09-08,2026-09-04,2026-09-06
+ORD-2026-09-002,2026-09-10,Norte,online,Escritório,Médio porte,3,1740.00,90.00,1030.00,delivered,2026-09-15,2026-09-11,2026-09-17
+ORD-2026-09-003,2026-09-20,Sudeste,loja,Acessórios,Enterprise,6,1320.00,60.00,760.00,shipped,2026-09-25,2026-09-21,

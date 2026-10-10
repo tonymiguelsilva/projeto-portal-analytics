@@ -4,8 +4,14 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
+from app.api.dependencies import get_data_source
+from app.api.routes.analytics import router as analytics_router
 from app.core.config import get_settings
-from app.services.data_source import DataSource, create_data_source
+from app.services.analytics_service import (
+    AnalyticsDataInvalidError,
+    AnalyticsDataUnavailableError,
+)
+from app.services.data_source import create_data_source
 
 
 @asynccontextmanager
@@ -14,16 +20,43 @@ async def lifespan(application: FastAPI) -> AsyncIterator[None]:
     yield
 
 
-def get_data_source(request: Request) -> DataSource:
-    return request.app.state.data_source
-
-
 app = FastAPI(
     title="Portal Web Analítico API",
     description="API para o Portal Web Analítico com modo demo e integração opcional com BigQuery",
     version="0.1.0",
     lifespan=lifespan,
 )
+app.include_router(analytics_router)
+
+
+@app.exception_handler(AnalyticsDataUnavailableError)
+async def analytics_data_unavailable_handler(
+    request: Request, error: AnalyticsDataUnavailableError
+) -> JSONResponse:
+    return JSONResponse(
+        status_code=503,
+        content={
+            "detail": {
+                "code": "analytics_data_unavailable",
+                "message": "Os dados analíticos Demo não estão disponíveis.",
+            }
+        },
+    )
+
+
+@app.exception_handler(AnalyticsDataInvalidError)
+async def analytics_data_invalid_handler(
+    request: Request, error: AnalyticsDataInvalidError
+) -> JSONResponse:
+    return JSONResponse(
+        status_code=500,
+        content={
+            "detail": {
+                "code": "analytics_data_invalid",
+                "message": "Os dados analíticos Demo estão inválidos.",
+            }
+        },
+    )
 
 @app.get("/health", tags=["health"])
 async def health_check():

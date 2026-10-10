@@ -1,0 +1,9 @@
+@import './tokens.css';
+
+* { box-sizing: border-box; }
+html { min-width: 320px; min-height: 100%; background: var(--paper); }
+body { min-width: 320px; min-height: 100vh; margin: 0; }
+button, input, select, textarea { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--coral); outline-offset: 3px; }
+::selection { color: #102d2a; background: var(--lime); }

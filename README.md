@@ -68,6 +68,10 @@ python -m unittest discover -s tests -v
 
 Granularidade, campos, fórmulas dos KPIs, denominadores, filtros e respostas de erro estão descritos em [`docs/analytics-data-contract.md`](docs/analytics-data-contract.md).
 
+## Frontend
+
+Instruções de instalação, configuração de `VITE_API_BASE_URL`, desenvolvimento e build estão em [`frontend/README.md`](frontend/README.md).
+
 ## Licença
 
 Este projeto está sob a licença MIT.

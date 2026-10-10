@@ -1,0 +1,25 @@
+:root {
+  font-family: 'Aptos', 'Trebuchet MS', sans-serif;
+  color: #18302d;
+  background: #f3f6f2;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  --ink: #18302d;
+  --ink-soft: #536662;
+  --ink-muted: #83908b;
+  --paper: #f3f6f2;
+  --panel: #fff;
+  --line: #dfe6df;
+  --line-strong: #cdd8d0;
+  --forest: #173b36;
+  --lime: #d8ec79;
+  --coral: #dd805c;
+  --success: #3b8d6b;
+  --warning: #ba704e;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0;
+}

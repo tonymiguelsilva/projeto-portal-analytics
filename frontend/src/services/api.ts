@@ -1,3 +1,10 @@
+import {
+  clearDemoSessionId,
+  DEMO_SESSION_HEADER,
+  getDemoSessionId,
+  notifyDemoSessionInvalidated,
+} from './demoSessionStorage'
+
 const DEFAULT_API_BASE_URL = 'http://localhost:8000'
 
 export const API_BASE_URL = import.meta.env.DEV
@@ -7,17 +14,25 @@ export const API_BASE_URL = import.meta.env.DEV
 export class ApiError extends Error {
   readonly status: number
   readonly body: unknown
+  readonly sessionCleanupError: unknown
 
   constructor(
     message: string,
     status: number,
     body: unknown,
+    sessionCleanupError?: unknown,
   ) {
     super(message)
     this.name = 'ApiError'
     this.status = status
     this.body = body
+    this.sessionCleanupError = sessionCleanupError
   }
+}
+
+function isProtectedAnalyticsPath(path: string): boolean {
+  const pathname = path.split(/[?#]/, 1)[0].replace(/^\/+/, '')
+  return pathname.startsWith('api/v1/analytics/')
 }
 
 export async function apiRequest<T>(
@@ -26,6 +41,9 @@ export async function apiRequest<T>(
 ): Promise<T> {
   const headers = new Headers(init.headers)
   if (!headers.has('Accept')) headers.set('Accept', 'application/json')
+  const protectedAnalyticsRequest = isProtectedAnalyticsPath(path)
+  const sessionId = protectedAnalyticsRequest ? getDemoSessionId() : null
+  if (sessionId) headers.set(DEMO_SESSION_HEADER, sessionId)
 
   const response = await fetch(
     `${API_BASE_URL}/${path.replace(/^\/+/, '')}`,
@@ -36,13 +54,24 @@ export async function apiRequest<T>(
 
   const body: unknown = await response.json().catch(() => null)
   if (!response.ok) {
+    let sessionCleanupError: unknown
+    if (response.status === 401 && protectedAnalyticsRequest) {
+      if (sessionId) {
+        try {
+          clearDemoSessionId()
+        } catch (error) {
+          sessionCleanupError = error
+        }
+      }
+      notifyDemoSessionInvalidated()
+    }
     const errorBody = body as { detail?: string | { message?: string } } | null
     const detail = errorBody?.detail
     const message =
       typeof detail === 'string'
         ? detail
         : detail?.message ?? `A API respondeu com HTTP ${response.status}.`
-    throw new ApiError(message, response.status, body)
+    throw new ApiError(message, response.status, body, sessionCleanupError)
   }
 
   return body as T

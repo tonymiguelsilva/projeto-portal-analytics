@@ -1,0 +1,128 @@
+.session-state-page {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px;
+  color: var(--ink-soft);
+  background: var(--paper);
+  text-align: center;
+}
+
+.session-state-page strong {
+  color: var(--ink);
+  font-size: 15px;
+}
+
+.session-state-page > span {
+  max-width: 420px;
+  font-size: 12px;
+}
+
+.session-state-spinner {
+  margin-bottom: 4px;
+  color: var(--forest);
+  animation: session-spin 1s linear infinite;
+}
+
+@keyframes session-spin {
+  to { transform: rotate(360deg); }
+}
+
+.session-state-page--error > svg {
+  margin-bottom: 4px;
+  color: var(--warning);
+}
+
+.session-state-page > button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 8px;
+  padding: 9px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  color: var(--ink);
+  background: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.session-state-page > button:hover {
+  border-color: var(--forest);
+}
+
+.session-notice {
+  padding: 10px 18px;
+  border-bottom: 1px solid #ead2c6;
+  color: #815039;
+  background: #fbf2ec;
+  font-size: 11px;
+  text-align: center;
+}
+
+.sidebar-account-name {
+  margin-bottom: 2px;
+  color: #eef3ef;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.sidebar-account-region {
+  margin-bottom: 10px;
+  color: #a9bdb6;
+  font-size: 10px;
+}
+
+.sidebar-logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 34px;
+  margin-top: 15px;
+  padding: 0 10px;
+  border: 1px solid rgb(255 255 255 / 17%);
+  border-radius: 3px;
+  color: #d8e2dd;
+  background: transparent;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sidebar-logout:hover {
+  border-color: #d48a76;
+  color: #fff;
+  background: rgb(255 255 255 / 6%);
+}
+
+@media (max-width: 760px) {
+  .sidebar.sidebar .sidebar-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .sidebar.sidebar .sidebar-account,
+  .sidebar.sidebar .sidebar-version {
+    display: none;
+  }
+
+  .sidebar.sidebar .sidebar-bottom .source-chip {
+    min-height: 32px;
+    padding: 0 8px;
+  }
+
+  .sidebar.sidebar .sidebar-logout {
+    min-height: 34px;
+    margin-top: 0;
+  }
+}

@@ -1,12 +1,16 @@
 import { NAV_ITEMS } from '../types/navigation'
 import type { ViewId } from '../types/navigation'
+import { LogOut } from 'lucide-react'
+import type { DemoProfile } from '../types/demoAuth'
 
 interface SidebarProps {
   activeView: ViewId
   onNavigate: (view: ViewId) => void
+  identity: DemoProfile
+  onLogout: () => void
 }
 
-function Sidebar({ activeView, onNavigate }: SidebarProps) {
+function Sidebar({ activeView, onNavigate, identity, onLogout }: SidebarProps) {
   return (
     <aside className="sidebar">
       <button
@@ -45,12 +49,25 @@ function Sidebar({ activeView, onNavigate }: SidebarProps) {
       </nav>
 
       <div className="sidebar-bottom">
-        <div className="sidebar-bottom-label">FONTE DE DADOS</div>
-        <div className="source-chip">
-          <span className="source-chip-dot" />
-          <span>Demo local</span>
+        <div className="sidebar-account">
+          <div className="sidebar-bottom-label">PERFIL ATIVO</div>
+          <div className="sidebar-account-name">{identity.label}</div>
+          <div className="sidebar-account-region">{identity.region_label}</div>
+          <div className="source-chip">
+            <span className="source-chip-dot" />
+            <span>Demo local</span>
+          </div>
+          <p className="sidebar-version">PORTAL ANALÍTICO <span>·</span> 0.1</p>
         </div>
-        <p className="sidebar-version">PORTAL ANALÍTICO <span>·</span> 0.1</p>
+        <button
+          className="sidebar-logout"
+          type="button"
+          onClick={onLogout}
+          title="Encerrar sessão Demo"
+        >
+          <LogOut size={15} aria-hidden="true" />
+          <span>Sair</span>
+        </button>
       </div>
     </aside>
   )

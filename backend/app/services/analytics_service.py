@@ -22,9 +22,18 @@ class AnalyticsDataInvalidError(Exception):
     pass
 
 
+class RegionScopeConflictError(Exception):
+    pass
+
+
 class AnalyticsService:
-    def __init__(self, data_source: DataSource) -> None:
+    def __init__(
+        self,
+        data_source: DataSource,
+        allowed_regions: tuple[str, ...] | None = None,
+    ) -> None:
         self.data_source = data_source
+        self.allowed_regions = allowed_regions
 
     def load_orders(self) -> list[OrderRecord]:
         try:
@@ -57,6 +66,28 @@ class AnalyticsService:
         start_date = filters.start_date or (min(dates) if dates else None)
         end_date = filters.end_date or (max(dates) if dates else None)
         return start_date, end_date
+
+    def _prepare_orders(
+        self, orders: list[OrderRecord], filters: AnalyticsFilters
+    ) -> tuple[list[OrderRecord], date | None, date | None]:
+        if self.allowed_regions is None:
+            scoped_orders = orders
+        else:
+            if filters.region is not None and filters.region not in self.allowed_regions:
+                raise RegionScopeConflictError
+            scoped_orders = [
+                order for order in orders if order.region in self.allowed_regions
+            ]
+
+        start_date, end_date = self._period_bounds(scoped_orders, filters)
+        return scoped_orders, start_date, end_date
+
+    @staticmethod
+    def _order_view(order: OrderRecord) -> dict[str, Any]:
+        result = order.model_dump()
+        result["net_revenue"] = order.net_revenue
+        result["gross_profit"] = order.net_revenue - order.cost_amount
+        return result
 
     @staticmethod
     def _select_orders(
@@ -171,8 +202,10 @@ class AnalyticsService:
 
     def overview(self, filters: AnalyticsFilters) -> dict[str, Any]:
         orders = self.load_orders()
-        start_date, end_date = self._period_bounds(orders, filters)
-        current_orders = self._select_orders(orders, filters, start_date, end_date)
+        scoped_orders, start_date, end_date = self._prepare_orders(orders, filters)
+        current_orders = self._select_orders(
+            scoped_orders, filters, start_date, end_date
+        )
         current_metrics = self._metrics(current_orders)
 
         previous_orders: list[OrderRecord] = []
@@ -181,7 +214,7 @@ class AnalyticsService:
             previous_end = start_date - timedelta(days=1)
             previous_start = previous_end - timedelta(days=period_days - 1)
             previous_orders = self._select_orders(
-                orders, filters, previous_start, previous_end
+                scoped_orders, filters, previous_start, previous_end
             )
         previous_metrics = self._metrics(previous_orders)
 
@@ -196,8 +229,10 @@ class AnalyticsService:
 
     def trends(self, filters: AnalyticsFilters) -> dict[str, Any]:
         orders = self.load_orders()
-        start_date, end_date = self._period_bounds(orders, filters)
-        selected = self._select_orders(orders, filters, start_date, end_date)
+        scoped_orders, start_date, end_date = self._prepare_orders(orders, filters)
+        selected = self._select_orders(
+            scoped_orders, filters, start_date, end_date
+        )
         monthly_orders: dict[str, list[OrderRecord]] = {}
         for order in selected:
             month = order.order_date.strftime("%Y-%m")
@@ -227,8 +262,10 @@ class AnalyticsService:
             raise ValueError("dimension deve ser region, channel ou category")
 
         orders = self.load_orders()
-        start_date, end_date = self._period_bounds(orders, filters)
-        selected = self._select_orders(orders, filters, start_date, end_date)
+        scoped_orders, start_date, end_date = self._prepare_orders(orders, filters)
+        selected = self._select_orders(
+            scoped_orders, filters, start_date, end_date
+        )
         field = dimension_fields[dimension]
         groups: dict[str, list[OrderRecord]] = {}
         for order in selected:
@@ -245,8 +282,10 @@ class AnalyticsService:
 
     def operations(self, filters: AnalyticsFilters) -> dict[str, Any]:
         orders = self.load_orders()
-        start_date, end_date = self._period_bounds(orders, filters)
-        selected = self._select_orders(orders, filters, start_date, end_date)
+        scoped_orders, start_date, end_date = self._prepare_orders(orders, filters)
+        selected = self._select_orders(
+            scoped_orders, filters, start_date, end_date
+        )
         metrics = self._metrics(selected)
         return {
             "period": self._period_payload(start_date, end_date),
@@ -265,6 +304,8 @@ class AnalyticsService:
 
     def filter_options(self) -> dict[str, Any]:
         orders = self.load_orders()
+        if self.allowed_regions is not None:
+            orders = [order for order in orders if order.region in self.allowed_regions]
         start_date, end_date = self._period_bounds(orders, AnalyticsFilters())
         return {
             "period": self._period_payload(start_date, end_date),
@@ -276,9 +317,12 @@ class AnalyticsService:
 
     def order_detail(self, order_id: str) -> dict[str, Any] | None:
         for order in self.load_orders():
-            if order.order_id == order_id:
-                result = order.model_dump()
-                result["net_revenue"] = order.net_revenue
-                result["gross_profit"] = order.net_revenue - order.cost_amount
-                return result
+            if (
+                order.order_id == order_id
+                and (
+                    self.allowed_regions is None
+                    or order.region in self.allowed_regions
+                )
+            ):
+                return self._order_view(order)
         return None

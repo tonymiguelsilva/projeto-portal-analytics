@@ -1,3 +1,4 @@
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -8,7 +9,7 @@ from app.core.config import Settings
 from app.main import app
 from app.services.data_source import DataSource
 from app.services.demo_data_source import DemoDataSource
-from asgi_client import asgi_get
+from asgi_client import asgi_get, asgi_request
 
 
 class StaticDataSource(DataSource):
@@ -25,6 +26,15 @@ class AnalyticsApiTests(unittest.IsolatedAsyncioTestCase):
         self.settings_patch.start()
         self.lifespan_context = app.router.lifespan_context(app)
         await self.lifespan_context.__aenter__()
+        status, body, _ = await asgi_request(
+            app,
+            "POST",
+            "/api/v1/demo-auth/session",
+            json_body={"profile_id": "director_all"},
+        )
+        self.assertEqual(status, 200)
+        body = json.loads(body)
+        self.session_headers = {"X-Demo-Session": body["session_id"]}
 
     async def asyncTearDown(self) -> None:
         app.dependency_overrides.clear()
@@ -32,8 +42,12 @@ class AnalyticsApiTests(unittest.IsolatedAsyncioTestCase):
         self.settings_patch.stop()
 
     async def test_overview_and_filters_use_demo_dataset(self) -> None:
-        status, overview = await asgi_get(app, "/api/v1/analytics/overview")
-        filter_status, options = await asgi_get(app, "/api/v1/analytics/filters")
+        status, overview = await asgi_get(
+            app, "/api/v1/analytics/overview", headers=self.session_headers
+        )
+        filter_status, options = await asgi_get(
+            app, "/api/v1/analytics/filters", headers=self.session_headers
+        )
 
         self.assertEqual(status, 200)
         self.assertEqual(overview["metrics"]["total_order_count"], 36)
@@ -43,15 +57,16 @@ class AnalyticsApiTests(unittest.IsolatedAsyncioTestCase):
     async def test_trends_sales_and_operations_accept_filters(self) -> None:
         query = {"start_date": "2026-01-01", "end_date": "2026-03-31"}
         trend_status, trends = await asgi_get(
-            app, "/api/v1/analytics/trends", query
+            app, "/api/v1/analytics/trends", query, self.session_headers
         )
         sales_status, sales = await asgi_get(
             app,
             "/api/v1/analytics/sales",
             {**query, "dimension": "region", "region": "Norte"},
+            self.session_headers,
         )
         operations_status, operations = await asgi_get(
-            app, "/api/v1/analytics/operations", query
+            app, "/api/v1/analytics/operations", query, self.session_headers
         )
 
         self.assertEqual(trend_status, 200)
@@ -66,6 +81,7 @@ class AnalyticsApiTests(unittest.IsolatedAsyncioTestCase):
             app,
             "/api/v1/analytics/overview",
             {"start_date": "2026-03-01", "end_date": "2026-02-01"},
+            self.session_headers,
         )
 
         self.assertEqual(status, 422)
@@ -76,7 +92,11 @@ class AnalyticsApiTests(unittest.IsolatedAsyncioTestCase):
             app.dependency_overrides[get_data_source] = lambda: DemoDataSource(
                 Path(temporary_directory)
             )
-            status, payload = await asgi_get(app, "/api/v1/analytics/overview")
+            status, payload = await asgi_get(
+                app,
+                "/api/v1/analytics/overview",
+                headers=self.session_headers,
+            )
 
         self.assertEqual(status, 503)
         self.assertEqual(payload["detail"]["code"], "analytics_data_unavailable")
@@ -85,14 +105,20 @@ class AnalyticsApiTests(unittest.IsolatedAsyncioTestCase):
         app.dependency_overrides[get_data_source] = lambda: StaticDataSource(
             [{"order_id": "incomplete"}]
         )
-        status, payload = await asgi_get(app, "/api/v1/analytics/overview")
+        status, payload = await asgi_get(
+            app,
+            "/api/v1/analytics/overview",
+            headers=self.session_headers,
+        )
 
         self.assertEqual(status, 500)
         self.assertEqual(payload["detail"]["code"], "analytics_data_invalid")
 
     async def test_order_detail_returns_404_for_unknown_id(self) -> None:
         status, payload = await asgi_get(
-            app, "/api/v1/analytics/orders/not-a-real-order"
+            app,
+            "/api/v1/analytics/orders/not-a-real-order",
+            headers=self.session_headers,
         )
 
         self.assertEqual(status, 404)

@@ -60,6 +60,28 @@ Todos os endpoints analíticos usam `data/demo/orders.csv` sob demanda. `start_d
 
 Datas inválidas, intervalo invertido ou dimensão inválida retornam `422`. Dataset ausente retorna `503` com `detail.code=analytics_data_unavailable`; dataset vazio, duplicado ou incompatível com o schema retorna `500` com `detail.code=analytics_data_invalid`. Ambos usam um envelope `detail` com `code` e `message`. Os endpoints existentes `/` e `/health` mantêm suas respostas e status.
 
+## Sessão Demo e Escopo Regional
+
+O login Demo não usa senha, credenciais externas ou autenticação de produção. Qualquer visitante pode escolher livremente qualquer perfil, inclusive `director_all`; portanto, este mecanismo não é uma fronteira de segurança e não deve ser usado como proteção de dados em produção.
+
+| Método e caminho | Acesso | Resultado |
+| --- | --- | --- |
+| `GET /api/v1/demo-auth/profiles` | Público | Catálogo dos quatro perfis Demo. |
+| `POST /api/v1/demo-auth/session` | Público | Cria sessão para `profile_id` informado no JSON. |
+| `GET /api/v1/demo-auth/session` | `X-Demo-Session` | Retorna a identidade associada à sessão. |
+| `DELETE /api/v1/demo-auth/session` | `X-Demo-Session` | Revoga a sessão; retorna `204`. |
+
+O identificador retornado em `session_id` deve ser enviado no cabeçalho HTTP `X-Demo-Session` em todas as chamadas a `/api/v1/analytics/*`. A sessão expira após 3.600 segundos, é armazenada somente em memória e se torna inválida quando o backend reinicia. Cabeçalho ausente retorna `401` com `demo_session_required`; sessão inválida, expirada ou revogada retorna `401` com `demo_session_invalid`.
+
+| `profile_id` | Papel | Regiões permitidas |
+| --- | --- | --- |
+| `analyst_south` | Analista | `Sul` |
+| `manager_south` | Gerente | `Sul` |
+| `manager_southeast` | Gerente | `Sudeste` |
+| `director_all` | Diretor | Todas as regiões do conjunto Demo |
+
+O backend resolve o perfil pelo identificador de sessão e aplica o escopo antes de calcular KPIs, tendências e comparações. Para perfis regionais, omitir o filtro `region` significa usar sua região autorizada; enviar outra região retorna `403` com `region_scope_conflict`. `/filters` lista apenas regiões permitidas. A consulta de pedido fora do escopo retorna `404` com `order_not_found`, sem revelar se o ID existe. O Diretor pode consultar todas as regiões ou escolher uma região no filtro. `/` e `/health` permanecem públicos e sem alteração de contrato.
+
 ## Testes
 
 Na pasta `backend/`, execute:

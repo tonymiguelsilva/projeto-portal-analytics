@@ -6,17 +6,21 @@ from fastapi.responses import JSONResponse
 
 from app.api.dependencies import get_data_source
 from app.api.routes.analytics import router as analytics_router
+from app.api.routes.demo_auth import router as demo_auth_router
 from app.core.config import get_settings
 from app.services.analytics_service import (
     AnalyticsDataInvalidError,
     AnalyticsDataUnavailableError,
+    RegionScopeConflictError,
 )
 from app.services.data_source import create_data_source
+from app.services.demo_sessions import DemoSessionStore
 
 
 @asynccontextmanager
 async def lifespan(application: FastAPI) -> AsyncIterator[None]:
     application.state.data_source = create_data_source(get_settings())
+    application.state.demo_sessions = DemoSessionStore()
     yield
 
 
@@ -27,6 +31,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 app.include_router(analytics_router)
+app.include_router(demo_auth_router)
 
 
 @app.exception_handler(AnalyticsDataUnavailableError)
@@ -58,6 +63,22 @@ async def analytics_data_invalid_handler(
         },
     )
 
+
+@app.exception_handler(RegionScopeConflictError)
+async def region_scope_conflict_handler(
+    request: Request, error: RegionScopeConflictError
+) -> JSONResponse:
+    return JSONResponse(
+        status_code=403,
+        content={
+            "detail": {
+                "code": "region_scope_conflict",
+                "message": "O perfil Demo não tem acesso à região solicitada.",
+            }
+        },
+    )
+
+
 @app.get("/health", tags=["health"])
 async def health_check():
     """Endpoint de verificação de saúde da API"""
@@ -65,6 +86,7 @@ async def health_check():
         status_code=200,
         content={"status": "ok", "message": "API está funcionando"}
     )
+
 
 @app.get("/", tags=["root"])
 async def root():

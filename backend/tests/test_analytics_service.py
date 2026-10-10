@@ -7,6 +7,7 @@ from app.services.analytics_service import (
     AnalyticsDataInvalidError,
     AnalyticsDataUnavailableError,
     AnalyticsService,
+    RegionScopeConflictError,
 )
 from app.services.data_source import DataSource
 
@@ -22,10 +23,11 @@ def make_order(
     promised: date | None = None,
     delivered: date | None = None,
 ) -> OrderRecord:
-    shipped_at = date.fromordinal(order_date.toordinal() + 1) if status in {
-        "shipped",
-        "delivered",
-    } else None
+    shipped_at = (
+        date.fromordinal(order_date.toordinal() + 1)
+        if status in {"shipped", "delivered"}
+        else None
+    )
     return OrderRecord.model_validate(
         {
             "order_id": order_id,
@@ -242,11 +244,10 @@ class AnalyticsServiceTests(unittest.TestCase):
             AnalyticsFilters(start_date=date(2026, 1, 1), end_date=date(2026, 3, 31))
         )
 
-        self.assertEqual([item["month"] for item in result["items"]], [
-            "2026-01",
-            "2026-02",
-            "2026-03",
-        ])
+        self.assertEqual(
+            [item["month"] for item in result["items"]],
+            ["2026-01", "2026-02", "2026-03"],
+        )
         self.assertEqual(result["items"][1]["total_order_count"], 0)
 
     def test_missing_and_invalid_data_have_distinct_errors(self) -> None:
@@ -257,6 +258,37 @@ class AnalyticsServiceTests(unittest.TestCase):
         duplicate = self.orders[0].model_dump(mode="json")
         with self.assertRaises(AnalyticsDataInvalidError):
             AnalyticsService(MemoryDataSource([duplicate, duplicate])).load_orders()
+
+    def test_regional_scope_applies_to_all_queries_and_detail(self) -> None:
+        southern_order = self.orders[0].model_dump(mode="json")
+        southern_order["order_id"] = "SOUTH-1"
+        southern_order["region"] = "Sul"
+        service = AnalyticsService(
+            MemoryDataSource(
+                [
+                    *[order.model_dump(mode="json") for order in self.orders],
+                    southern_order,
+                ]
+            ),
+            allowed_regions=("Sul",),
+        )
+
+        overview = service.overview(AnalyticsFilters())
+        trends = service.trends(AnalyticsFilters())
+        sales = service.sales(AnalyticsFilters(), "region")
+        operations = service.operations(AnalyticsFilters())
+        filter_options = service.filter_options()
+
+        self.assertEqual(overview["metrics"]["total_order_count"], 1)
+        self.assertEqual(sum(item["total_order_count"] for item in trends["items"]), 1)
+        self.assertEqual([item["value"] for item in sales["items"]], ["Sul"])
+        self.assertEqual(operations["metrics"]["total_order_count"], 1)
+        self.assertEqual(filter_options["regions"], ["Sul"])
+        self.assertIsNotNone(service.order_detail("SOUTH-1"))
+        self.assertIsNone(service.order_detail("A-1"))
+
+        with self.assertRaises(RegionScopeConflictError):
+            service.overview(AnalyticsFilters(region="Sudeste"))
 
 
 class MemoryDataSourceMissing(DataSource):

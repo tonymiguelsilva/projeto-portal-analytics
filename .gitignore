@@ -1,0 +1,66 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+*.cover
+*.pyw
+*.rej
+*~
+db.sqlite3
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.vscode/
+.idea/
+*.log
+*.pot
+*.bak
+*.swp
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.dist/
+.cache/
+temp/
+.tmp/
+.build/
+coverage/
+.vite/
+dist/
+build/
+
+# Env (only ignore actual env files, not examples)
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Logs
+*.log
+npm-degrade.log*
+yarn-degrade.log*
+pnpm-degrade.log*
+
+# Misc
+.cache
+.history
+.reboot

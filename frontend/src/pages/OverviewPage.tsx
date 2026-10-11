@@ -24,12 +24,14 @@ import { fetchOverview, fetchTrends } from '../services/analytics'
 import type { AnalyticsFilters, OverviewResponse, TrendsResponse } from '../types/api'
 import { formatCompactCurrency, formatCurrency, formatInteger, formatMonth, formatPercent, formatVariation } from '../utils/format'
 import { getErrorMessage } from '../utils/errors'
+import { useChartTheme } from '../utils/chartTheme'
 
 interface OverviewPageProps {
   filters: AnalyticsFilters
 }
 
 function OverviewPage({ filters }: OverviewPageProps) {
+  const chartTheme = useChartTheme()
   const [overview, setOverview] = useState<OverviewResponse | null>(null)
   const [trends, setTrends] = useState<TrendsResponse | null>(null)
   const [queryState, setQueryState] = useState<{
@@ -92,13 +94,13 @@ function OverviewPage({ filters }: OverviewPageProps) {
         onRetry={() => setRetryKey((key) => key + 1)}
       >
         {metrics && currentOverview && currentTrends && (
-          <>
+          <div className="overview-content">
             <section className="metric-grid" aria-label="Indicadores executivos">
-              <MetricCard label="Faturamento líquido" value={formatCurrency(metrics.net_revenue)} detail={formatVariation(currentOverview.variation_pct.net_revenue)} icon={Banknote} tone="forest" />
+              <MetricCard label="Faturamento líquido" value={formatCurrency(metrics.net_revenue)} detail={formatVariation(currentOverview.variation_pct.net_revenue)} icon={Banknote} tone="red" />
               <MetricCard label="Pedidos válidos" value={formatInteger(metrics.valid_order_count)} detail={formatVariation(currentOverview.variation_pct.valid_order_count)} icon={ShoppingCart} tone="blue" />
-              <MetricCard label="Ticket médio" value={formatCurrency(metrics.average_ticket)} detail="Por pedido não cancelado" icon={ClipboardCheck} tone="lime" />
-              <MetricCard label="Lucro bruto" value={formatCurrency(metrics.gross_profit)} detail={formatVariation(currentOverview.variation_pct.gross_profit)} icon={Activity} tone="coral" />
-              <MetricCard label="Margem bruta" value={formatPercent(metrics.gross_margin_pct)} detail="Lucro bruto / faturamento líquido" icon={BadgePercent} tone="forest" />
+              <MetricCard label="Ticket médio" value={formatCurrency(metrics.average_ticket)} detail="Por pedido não cancelado" icon={ClipboardCheck} tone="green" />
+              <MetricCard label="Lucro bruto" value={formatCurrency(metrics.gross_profit)} detail={formatVariation(currentOverview.variation_pct.gross_profit)} icon={Activity} tone="amber" />
+              <MetricCard label="Margem bruta" value={formatPercent(metrics.gross_margin_pct)} detail="Lucro bruto / faturamento líquido" icon={BadgePercent} tone="red" />
             </section>
 
             <section className="secondary-metrics" aria-label="Indicadores complementares">
@@ -124,18 +126,37 @@ function OverviewPage({ filters }: OverviewPageProps) {
                 <div className="chart-frame chart-frame--overview">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={currentTrends.items} margin={{ top: 12, right: 12, left: 6, bottom: 2 }}>
-                      <CartesianGrid stroke="#e8eee8" vertical={false} />
-                      <XAxis dataKey="month" tickFormatter={formatMonth} tickLine={false} axisLine={false} tick={{ fill: '#87958e', fontSize: 11 }} minTickGap={24} />
-                      <YAxis tickFormatter={formatCompactCurrency} tickLine={false} axisLine={false} width={68} tick={{ fill: '#87958e', fontSize: 10 }} />
-                      <Tooltip labelFormatter={(label) => formatMonth(String(label))} formatter={(value) => formatCurrency(Number(value))} contentStyle={{ borderColor: '#dfe6df', borderRadius: 4, fontSize: 12 }} />
-                      <Line type="monotone" dataKey="net_revenue" name="Faturamento líquido" stroke="#247365" strokeWidth={2.5} dot={{ r: 3, fill: '#d8ec79', stroke: '#247365', strokeWidth: 2 }} activeDot={{ r: 5 }} />
+                      <CartesianGrid stroke={chartTheme.grid} vertical={false} />
+                      <XAxis dataKey="month" tickFormatter={formatMonth} tickLine={false} axisLine={false} tick={{ fill: chartTheme.tick, fontSize: 11 }} minTickGap={24} />
+                      <YAxis tickFormatter={formatCompactCurrency} tickLine={false} axisLine={false} width={68} tick={{ fill: chartTheme.tick, fontSize: 10 }} />
+                      <Tooltip
+                        labelFormatter={(label) => formatMonth(String(label))}
+                        formatter={(value) => formatCurrency(Number(value))}
+                        contentStyle={{
+                          backgroundColor: chartTheme.tooltipBg,
+                          borderColor: chartTheme.tooltipBorder,
+                          color: chartTheme.tooltipText,
+                          borderRadius: 8,
+                          fontSize: 12,
+                          boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+                        }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="net_revenue"
+                        name="Faturamento líquido"
+                        stroke={chartTheme.primary}
+                        strokeWidth={2.5}
+                        dot={{ r: 3, fill: chartTheme.tooltipBg, stroke: chartTheme.primary, strokeWidth: 2 }}
+                        activeDot={{ r: 5, fill: chartTheme.primary }}
+                      />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
               )}
               <div className="chart-footnote">Comparação exibida contra a janela anterior de mesma duração, quando houver base válida.</div>
             </Panel>
-          </>
+          </div>
         )}
       </QueryState>
     </div>

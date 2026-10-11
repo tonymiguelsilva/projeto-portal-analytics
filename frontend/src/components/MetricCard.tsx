@@ -5,7 +5,7 @@ interface MetricCardProps {
   value: string
   detail?: string
   icon: LucideIcon
-  tone?: 'forest' | 'lime' | 'coral' | 'blue'
+  tone?: 'red' | 'graphite' | 'blue' | 'green' | 'amber' | 'forest' | 'lime' | 'coral'
   loading?: boolean
 }
 
@@ -14,7 +14,7 @@ function MetricCard({
   value,
   detail,
   icon: Icon,
-  tone = 'forest',
+  tone = 'red',
   loading = false,
 }: MetricCardProps) {
   return (

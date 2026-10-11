@@ -128,7 +128,7 @@ function DemoLoginPage({ onSessionStarted }: DemoLoginPageProps) {
     <main className="demo-login-page">
       <header className="demo-login-topbar">
         <div className="demo-login-brand" aria-label="DataLens">
-          <span className="demo-login-brand-mark" aria-hidden="true">D</span>
+          <span className="brand-mark" aria-hidden="true" />
           <span className="demo-login-brand-name">DataLens</span>
         </div>
         <span className="demo-login-mode">

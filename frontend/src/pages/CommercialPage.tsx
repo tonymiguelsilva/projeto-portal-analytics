@@ -16,6 +16,7 @@ import { fetchSales } from '../services/analytics'
 import type { AnalyticsFilters, SalesDimension, SalesResponse } from '../types/api'
 import { formatCompactCurrency, formatCurrency, formatInteger, formatPercent } from '../utils/format'
 import { getErrorMessage } from '../utils/errors'
+import { useChartTheme } from '../utils/chartTheme'
 
 interface CommercialPageProps {
   filters: AnalyticsFilters
@@ -28,6 +29,7 @@ const DIMENSIONS: { id: SalesDimension; label: string; icon: typeof MapPinned }[
 ]
 
 function CommercialPage({ filters }: CommercialPageProps) {
+  const chartTheme = useChartTheme()
   const [dimension, setDimension] = useState<SalesDimension>('region')
   const [sales, setSales] = useState<SalesResponse | null>(null)
   const [queryState, setQueryState] = useState<{
@@ -91,10 +93,10 @@ function CommercialPage({ filters }: CommercialPageProps) {
       </div>
 
       <section className="metric-grid metric-grid--four" aria-label="Resumo comercial">
-        <MetricCard label="Faturamento líquido" value={formatCurrency(totalRevenue)} detail="Soma dos grupos retornados" icon={BarChart3} tone="forest" loading={loading} />
+        <MetricCard label="Faturamento líquido" value={formatCurrency(totalRevenue)} detail="Soma dos grupos retornados" icon={BarChart3} tone="red" loading={loading} />
         <MetricCard label="Pedidos válidos" value={formatInteger(totalOrders)} detail="Pedidos não cancelados" icon={Store} tone="blue" loading={loading} />
-        <MetricCard label="Unidades vendidas" value={formatInteger(totalUnits)} detail="Nos grupos retornados" icon={Boxes} tone="lime" loading={loading} />
-        <MetricCard label="Margem bruta" value={formatPercent(totalMargin)} detail="Lucro bruto / faturamento líquido" icon={MapPinned} tone="coral" loading={loading} />
+        <MetricCard label="Unidades vendidas" value={formatInteger(totalUnits)} detail="Nos grupos retornados" icon={Boxes} tone="green" loading={loading} />
+        <MetricCard label="Margem bruta" value={formatPercent(totalMargin)} detail="Lucro bruto / faturamento líquido" icon={MapPinned} tone="amber" loading={loading} />
       </section>
 
       <QueryState
@@ -115,11 +117,22 @@ function CommercialPage({ filters }: CommercialPageProps) {
               <div className="chart-frame chart-frame--bars">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={items} layout="vertical" margin={{ top: 8, right: 22, left: 12, bottom: 4 }}>
-                    <CartesianGrid stroke="#e8eee8" horizontal={false} />
-                    <XAxis type="number" tickFormatter={formatCompactCurrency} tickLine={false} axisLine={false} tick={{ fill: '#87958e', fontSize: 10 }} />
-                    <YAxis type="category" dataKey="value" width={104} tickLine={false} axisLine={false} tick={{ fill: '#536662', fontSize: 11 }} />
-                    <Tooltip formatter={(value) => formatCurrency(Number(value))} contentStyle={{ borderColor: '#dfe6df', borderRadius: 4, fontSize: 12 }} />
-                    <Bar dataKey="net_revenue" name="Faturamento líquido" fill="#247365" radius={[0, 3, 3, 0]} maxBarSize={28} />
+                    <CartesianGrid stroke={chartTheme.grid} horizontal={false} />
+                    <XAxis type="number" tickFormatter={formatCompactCurrency} tickLine={false} axisLine={false} tick={{ fill: chartTheme.tick, fontSize: 10 }} />
+                    <YAxis type="category" dataKey="value" width={104} tickLine={false} axisLine={false} tick={{ fill: chartTheme.tick, fontSize: 11 }} />
+                    <Tooltip
+                      formatter={(value) => formatCurrency(Number(value))}
+                      cursor={{ fill: 'rgba(244, 245, 247, 0.05)' }}
+                      contentStyle={{
+                        backgroundColor: chartTheme.tooltipBg,
+                        borderColor: chartTheme.tooltipBorder,
+                        color: chartTheme.tooltipText,
+                        borderRadius: 8,
+                        fontSize: 12,
+                        boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+                      }}
+                    />
+                    <Bar dataKey="net_revenue" name="Faturamento líquido" fill={chartTheme.primary} radius={[0, 4, 4, 0]} maxBarSize={28} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>

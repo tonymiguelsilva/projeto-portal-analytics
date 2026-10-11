@@ -3,6 +3,7 @@ import { AlertTriangle, LoaderCircle, RefreshCw } from 'lucide-react'
 import ConnectionStatus from './components/ConnectionStatus'
 import DashboardFilters from './components/DashboardFilters'
 import Sidebar from './components/Sidebar'
+import ThemeToggle from './components/ThemeToggle'
 import DemoLoginPage from './pages/DemoLoginPage'
 import { ApiError } from './services/api'
 import { fetchFilterOptions } from './services/analytics'
@@ -17,6 +18,7 @@ import type { AnalyticsFilters, FilterOptionsResponse } from './types/api'
 import { NAV_ITEMS } from './types/navigation'
 import type { ViewId } from './types/navigation'
 import { getErrorMessage } from './utils/errors'
+import { applyTheme, getInitialTheme, type Theme } from './utils/theme'
 import './styles/app.css'
 import './styles/dashboards.css'
 import './styles/session-state.css'
@@ -32,6 +34,7 @@ type SessionState =
   | { status: 'error'; message: string }
 
 function App() {
+  const [theme, setTheme] = useState<Theme>(getInitialTheme)
   const [sessionState, setSessionState] = useState<SessionState>({ status: 'checking' })
   const [sessionCheckKey, setSessionCheckKey] = useState(0)
   const [activeView, setActiveView] = useState<ViewId>('overview')
@@ -42,6 +45,16 @@ function App() {
     profileId: string
     message: string | null
   } | null>(null)
+
+  const toggleTheme = () => {
+    const nextTheme: Theme = theme === 'light' ? 'dark' : 'light'
+    setTheme(nextTheme)
+    applyTheme(nextTheme)
+  }
+
+  useEffect(() => {
+    applyTheme(theme)
+  }, [theme])
   const activeProfileId = sessionState.status === 'authenticated'
     ? sessionState.profile.profile_id
     : null
@@ -191,7 +204,10 @@ function App() {
             <span className="breadcrumb-divider">/</span>
             <strong>{currentView.label}</strong>
           </div>
-          <ConnectionStatus />
+          <div className="topbar-actions">
+            <ThemeToggle theme={theme} onToggle={toggleTheme} />
+            <ConnectionStatus />
+          </div>
         </header>
         <main className="page-main">
           <DashboardFilters

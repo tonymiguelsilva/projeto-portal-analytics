@@ -4,94 +4,98 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
   padding: 24px;
-  color: var(--ink-soft);
-  background: var(--paper);
+  color: var(--dl-theme-text-secondary);
+  background: var(--dl-theme-canvas);
   text-align: center;
+  transition: background-color var(--dl-transition-standard);
 }
 
 .session-state-page strong {
-  color: var(--ink);
-  font-size: 15px;
+  color: var(--dl-theme-text-primary);
+  font-size: 16px;
+  font-weight: 700;
 }
 
 .session-state-page > span {
-  max-width: 420px;
-  font-size: 12px;
+  max-width: 440px;
+  font-size: 13px;
 }
 
 .session-state-spinner {
-  margin-bottom: 4px;
-  color: var(--forest);
+  margin-bottom: 6px;
+  color: var(--dl-color-red);
   animation: session-spin 1s linear infinite;
 }
 
 @keyframes session-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .session-state-page--error > svg {
-  margin-bottom: 4px;
-  color: var(--warning);
+  margin-bottom: 6px;
+  color: var(--dl-color-danger);
 }
 
 .session-state-page > button {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  margin-top: 8px;
-  padding: 9px 12px;
-  border: 1px solid var(--line-strong);
-  border-radius: 3px;
-  color: var(--ink);
-  background: #fff;
-  font-size: 11px;
-  font-weight: 600;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 10px 16px;
+  border: 1px solid var(--dl-theme-border-strong);
+  border-radius: var(--dl-radius-sm);
+  color: var(--dl-theme-text-primary);
+  background: var(--dl-theme-surface);
+  font-size: 12px;
+  font-weight: 650;
   cursor: pointer;
+  box-shadow: var(--dl-theme-shadow);
+  transition: all var(--dl-transition-fast);
 }
 
 .session-state-page > button:hover {
-  border-color: var(--forest);
+  border-color: var(--dl-color-red);
+  color: var(--dl-color-red);
 }
 
 .session-notice {
-  padding: 10px 18px;
-  border-bottom: 1px solid #ead2c6;
-  color: #815039;
-  background: #fbf2ec;
-  font-size: 11px;
+  padding: 11px 20px;
+  border-bottom: 1px solid rgb(229 72 77 / 20%);
+  color: var(--dl-color-danger);
+  background: var(--dl-color-danger-subtle);
+  font-size: 12px;
+  font-weight: 500;
   text-align: center;
 }
 
-.sidebar-account-name {
-  margin-bottom: 2px;
-  color: var(--dl-color-text-light);
-  font-size: 10px;
-  font-weight: 650;
-}
+/* .sidebar-account-name está definido em app.css */
 
 .sidebar-logout {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  min-height: 34px;
-  margin-top: 15px;
-  padding: 0 10px;
-  border: 1px solid rgb(255 255 255 / 17%);
-  border-radius: 3px;
-  color: #d8e2dd;
+  gap: 8px;
+  min-height: 36px;
+  margin-top: 14px;
+  padding: 0 12px;
+  border: 1px solid rgb(244 245 247 / 14%);
+  border-radius: var(--dl-radius-sm);
+  color: #c8ced6;
   background: transparent;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   cursor: pointer;
+  transition: all var(--dl-transition-fast);
 }
 
 .sidebar-logout:hover {
-  border-color: #d48a76;
+  border-color: var(--dl-color-red);
   color: #fff;
-  background: rgb(255 255 255 / 6%);
+  background: rgb(229 72 77 / 18%);
 }
 
 @media (max-width: 760px) {
@@ -125,12 +129,12 @@
   }
 
   .sidebar.sidebar .sidebar-account-identity {
-    gap: 7px;
+    gap: 8px;
   }
 
   .sidebar.sidebar .sidebar-account-avatar {
-    width: 29px;
-    height: 29px;
+    width: 30px;
+    height: 30px;
   }
 
   .sidebar.sidebar .sidebar-account-name {
@@ -142,16 +146,16 @@
   }
 
   .sidebar.sidebar .sidebar-logout {
-    width: 37px;
-    min-width: 37px;
-    min-height: 37px;
+    width: 38px;
+    min-width: 38px;
+    min-height: 38px;
     margin-top: 0;
     padding: 0;
     font-size: 0;
   }
 
   .sidebar.sidebar .sidebar-logout svg {
-    width: 16px;
-    height: 16px;
+    width: 17px;
+    height: 17px;
   }
 }

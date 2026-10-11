@@ -11,6 +11,7 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  Cell,
   PolarAngleAxis,
   RadialBar,
   RadialBarChart,
@@ -31,6 +32,7 @@ import type {
 } from '../types/api'
 import { formatCurrency, formatDate, formatDays, formatInteger, formatPercent } from '../utils/format'
 import { getErrorMessage } from '../utils/errors'
+import { useChartTheme } from '../utils/chartTheme'
 
 interface OperationsPageProps {
   filters: AnalyticsFilters
@@ -43,6 +45,7 @@ interface OrderLookupSnapshot {
 }
 
 function OperationsPage({ filters }: OperationsPageProps) {
+  const chartTheme = useChartTheme()
   const [operations, setOperations] = useState<OperationsResponse | null>(null)
   const [overview, setOverview] = useState<OverviewResponse | null>(null)
   const [queryState, setQueryState] = useState<{
@@ -104,9 +107,9 @@ function OperationsPage({ filters }: OperationsPageProps) {
   const orderDetail = lookup.key === lookupKey ? lookup.order : null
   const statusData = metrics
     ? [
-        { status: 'Entregues', pedidos: metrics.delivered_order_count, fill: '#267663' },
-        { status: 'Em aberto', pedidos: metrics.open_order_count, fill: '#d2a84d' },
-        { status: 'Cancelados', pedidos: metrics.cancelled_order_count, fill: '#c8785a' },
+        { status: 'Entregues', pedidos: metrics.delivered_order_count, fill: chartTheme.success },
+        { status: 'Em aberto', pedidos: metrics.open_order_count, fill: chartTheme.warning },
+        { status: 'Cancelados', pedidos: metrics.cancelled_order_count, fill: chartTheme.primary },
       ]
     : []
 
@@ -128,11 +131,11 @@ function OperationsPage({ filters }: OperationsPageProps) {
       </section>
 
       <section className="metric-grid metric-grid--five" aria-label="Indicadores operacionais">
-        <MetricCard label="Pedidos em aberto" value={formatInteger(metrics?.open_order_count)} detail="Pendentes ou enviados" icon={PackageOpen} tone="lime" loading={loading} />
-        <MetricCard label="Cancelamentos" value={formatInteger(metrics?.cancelled_order_count)} detail={formatPercent(metrics?.cancellation_rate_pct)} icon={AlertOctagon} tone="coral" loading={loading} />
-        <MetricCard label="Unidades vendidas" value={formatInteger(currentOverview?.metrics.units_sold)} detail="Pedidos não cancelados" icon={CheckCircle2} tone="forest" loading={loading} />
+        <MetricCard label="Pedidos em aberto" value={formatInteger(metrics?.open_order_count)} detail="Pendentes ou enviados" icon={PackageOpen} tone="amber" loading={loading} />
+        <MetricCard label="Cancelamentos" value={formatInteger(metrics?.cancelled_order_count)} detail={formatPercent(metrics?.cancellation_rate_pct)} icon={AlertOctagon} tone="red" loading={loading} />
+        <MetricCard label="Unidades vendidas" value={formatInteger(currentOverview?.metrics.units_sold)} detail="Pedidos não cancelados" icon={CheckCircle2} tone="green" loading={loading} />
         <MetricCard label="Prazo médio" value={formatDays(metrics?.average_delivery_days)} detail="Criação até a entrega" icon={Clock3} tone="blue" loading={loading} />
-        <MetricCard label="Entregas no prazo" value={formatPercent(metrics?.on_time_delivery_rate_pct)} detail="Base: pedidos entregues" icon={Truck} tone="forest" loading={loading} />
+        <MetricCard label="Entregas no prazo" value={formatPercent(metrics?.on_time_delivery_rate_pct)} detail="Base: pedidos entregues" icon={Truck} tone="green" loading={loading} />
       </section>
 
       <QueryState
@@ -148,11 +151,26 @@ function OperationsPage({ filters }: OperationsPageProps) {
               <div className="chart-frame chart-frame--status">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={statusData} layout="vertical" margin={{ top: 8, right: 22, left: 5, bottom: 4 }}>
-                    <CartesianGrid stroke="#e8eee8" horizontal={false} />
-                    <XAxis type="number" allowDecimals={false} tickLine={false} axisLine={false} tick={{ fill: '#87958e', fontSize: 10 }} />
-                    <YAxis type="category" dataKey="status" width={96} tickLine={false} axisLine={false} tick={{ fill: '#536662', fontSize: 11 }} />
-                    <Tooltip formatter={(value) => formatInteger(Number(value))} contentStyle={{ borderColor: '#dfe6df', borderRadius: 4, fontSize: 12 }} />
-                    <Bar dataKey="pedidos" name="Pedidos" radius={[0, 3, 3, 0]} maxBarSize={26} />
+                    <CartesianGrid stroke={chartTheme.grid} horizontal={false} />
+                    <XAxis type="number" allowDecimals={false} tickLine={false} axisLine={false} tick={{ fill: chartTheme.tick, fontSize: 10 }} />
+                    <YAxis type="category" dataKey="status" width={96} tickLine={false} axisLine={false} tick={{ fill: chartTheme.tick, fontSize: 11 }} />
+                    <Tooltip
+                      formatter={(value) => formatInteger(Number(value))}
+                      cursor={{ fill: 'rgba(244, 245, 247, 0.05)' }}
+                      contentStyle={{
+                        backgroundColor: chartTheme.tooltipBg,
+                        borderColor: chartTheme.tooltipBorder,
+                        color: chartTheme.tooltipText,
+                        borderRadius: 8,
+                        fontSize: 12,
+                        boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+                      }}
+                    />
+                    <Bar dataKey="pedidos" name="Pedidos" radius={[0, 4, 4, 0]} maxBarSize={26}>
+                      {statusData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                      ))}
+                    </Bar>
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -166,7 +184,7 @@ function OperationsPage({ filters }: OperationsPageProps) {
                 <div className="delivery-gauge">
                   <ResponsiveContainer width="100%" height="100%">
                     <RadialBarChart
-                      data={[{ name: 'No prazo', value: metrics.on_time_delivery_rate_pct, fill: '#247365' }]}
+                      data={[{ name: 'No prazo', value: metrics.on_time_delivery_rate_pct, fill: chartTheme.success }]}
                       startAngle={210}
                       endAngle={-30}
                       innerRadius="78%"
@@ -174,7 +192,7 @@ function OperationsPage({ filters }: OperationsPageProps) {
                       barSize={14}
                     >
                       <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
-                      <RadialBar dataKey="value" background={{ fill: '#e8eee8' }} cornerRadius={7} />
+                      <RadialBar dataKey="value" background={{ fill: chartTheme.track }} cornerRadius={7} />
                     </RadialBarChart>
                   </ResponsiveContainer>
                   <strong>{formatPercent(metrics.on_time_delivery_rate_pct)}</strong>

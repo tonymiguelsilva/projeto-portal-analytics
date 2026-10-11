@@ -6,30 +6,47 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  --ink: #18302d;
-  --ink-soft: #536662;
-  --ink-muted: #83908b;
-  --paper: #f3f6f2;
-  --panel: #fff;
-  --line: #dfe6df;
-  --line-strong: #cdd8d0;
-  --forest: #173b36;
-  --lime: #d8ec79;
-  --coral: #dd805c;
-  --success: #3b8d6b;
-  --warning: #ba704e;
 
+  /* Cores de base da marca DataLens */
   --dl-color-graphite: #111318;
   --dl-color-black: #090a0d;
   --dl-color-surface-dark: #1b1e25;
   --dl-color-red: #e5484d;
+  --dl-color-red-hover: #f0585d;
+  --dl-color-red-subtle: rgb(229 72 77 / 12%);
   --dl-color-text-light: #f4f5f7;
   --dl-color-text-secondary: #8d96a5;
 
-  --dl-font-sans: 'Aptos', 'Trebuchet MS', sans-serif;
-  --dl-font-display: Georgia, 'Times New Roman', serif;
-  --dl-font-mono: 'Aptos Mono', Consolas, monospace;
+  /* Cores semânticas funcionais (mantendo distinção clara e contraste) */
+  --dl-color-success: #30a46c;
+  --dl-color-success-subtle: rgb(48 164 108 / 12%);
+  --dl-color-warning: #f5a524;
+  --dl-color-warning-subtle: rgb(245 165 36 / 12%);
+  --dl-color-danger: #e5484d;
+  --dl-color-danger-subtle: rgb(229 72 77 / 12%);
+  --dl-color-info: #3e63dd;
+  --dl-color-info-subtle: rgb(62 99 221 / 12%);
 
+  /* Aliases legados retrocompatíveis para evitar quebras pontuais */
+  --ink: var(--dl-theme-text-primary);
+  --ink-soft: var(--dl-theme-text-secondary);
+  --ink-muted: var(--dl-theme-text-muted);
+  --paper: var(--dl-theme-canvas);
+  --panel: var(--dl-theme-surface);
+  --line: var(--dl-theme-border);
+  --line-strong: var(--dl-theme-border-strong);
+  --forest: var(--dl-theme-text-primary);
+  --lime: var(--dl-color-success);
+  --coral: var(--dl-color-red);
+  --success: var(--dl-color-success);
+  --warning: var(--dl-color-warning);
+
+  /* Tipografia */
+  --dl-font-sans: 'Aptos', 'Trebuchet MS', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --dl-font-display: Georgia, 'Times New Roman', serif;
+  --dl-font-mono: 'Aptos Mono', Consolas, 'SF Mono', monospace;
+
+  /* Escala de Espaçamento */
   --dl-space-1: 0.25rem;
   --dl-space-2: 0.5rem;
   --dl-space-3: 0.75rem;
@@ -40,15 +57,19 @@
   --dl-space-10: 2.5rem;
   --dl-space-12: 3rem;
 
-  --dl-radius-sm: 10px;
+  /* Raios de Arredondamento */
+  --dl-radius-xs: 6px;
+  --dl-radius-sm: 8px;
   --dl-radius-md: 12px;
   --dl-radius-lg: 16px;
   --dl-radius-pill: 999px;
 
-  --dl-shadow-sm: 0 2px 8px rgb(17 19 24 / 5%);
-  --dl-shadow-md: 0 8px 24px rgb(17 19 24 / 8%);
+  /* Sombras */
+  --dl-shadow-sm: 0 1px 3px rgb(17 19 24 / 5%), 0 1px 2px rgb(17 19 24 / 4%);
+  --dl-shadow-md: 0 4px 16px rgb(17 19 24 / 8%), 0 2px 6px rgb(17 19 24 / 4%);
   --dl-shadow-lg: 0 16px 40px rgb(17 19 24 / 12%);
 
+  /* Transições */
   --dl-transition-fast: 140ms ease;
   --dl-transition-standard: 200ms ease;
   --dl-transition-slow: 300ms ease;
@@ -57,26 +78,65 @@
   font-weight: 400;
   line-height: 1.5;
   letter-spacing: 0;
+
+  /* Fallback de tema (tema escuro como padrão até o script inline resolver) */
+  --dl-theme-color-scheme: dark;
+  --dl-theme-canvas: #111318;
+  --dl-theme-surface: #1b1e25;
+  --dl-theme-surface-raised: #222630;
+  --dl-theme-surface-subtle: #16181f;
+  --dl-theme-text-primary: #f4f5f7;
+  --dl-theme-text-secondary: #8d96a5;
+  --dl-theme-text-muted: #626b79;
+  --dl-theme-border: rgb(244 245 247 / 10%);
+  --dl-theme-border-strong: rgb(244 245 247 / 18%);
+  --dl-theme-topbar-bg: rgb(17 19 24 / 88%);
+  --dl-theme-card-bg: #1b1e25;
+  --dl-theme-input-bg: #15171d;
+  --dl-theme-shadow: 0 8px 24px rgb(0 0 0 / 28%);
+  --dl-theme-chart-grid: rgb(244 245 247 / 8%);
+  --dl-theme-chart-tick: #6e7787;
+  --dl-theme-chart-track: #262a34;
 }
 
+/* Tema Claro */
 :root[data-theme='light'] {
   --dl-theme-color-scheme: light;
   --dl-theme-canvas: #f4f5f7;
-  --dl-theme-surface: #fff;
-  --dl-theme-surface-raised: #fff;
+  --dl-theme-surface: #ffffff;
+  --dl-theme-surface-raised: #ffffff;
+  --dl-theme-surface-subtle: #f0f2f5;
   --dl-theme-text-primary: #111318;
-  --dl-theme-text-secondary: #8d96a5;
+  --dl-theme-text-secondary: #656f7d;
+  --dl-theme-text-muted: #8d96a5;
   --dl-theme-border: rgb(17 19 24 / 9%);
+  --dl-theme-border-strong: rgb(17 19 24 / 16%);
+  --dl-theme-topbar-bg: rgb(244 245 247 / 88%);
+  --dl-theme-card-bg: #ffffff;
+  --dl-theme-input-bg: #ffffff;
   --dl-theme-shadow: var(--dl-shadow-sm);
+  --dl-theme-chart-grid: rgb(17 19 24 / 7%);
+  --dl-theme-chart-tick: #8d96a5;
+  --dl-theme-chart-track: #e6e9ee;
 }
 
+/* Tema Escuro */
 :root[data-theme='dark'] {
   --dl-theme-color-scheme: dark;
   --dl-theme-canvas: #111318;
   --dl-theme-surface: #1b1e25;
   --dl-theme-surface-raised: #222630;
+  --dl-theme-surface-subtle: #16181f;
   --dl-theme-text-primary: #f4f5f7;
   --dl-theme-text-secondary: #8d96a5;
+  --dl-theme-text-muted: #626b79;
   --dl-theme-border: rgb(244 245 247 / 10%);
-  --dl-theme-shadow: 0 8px 24px rgb(0 0 0 / 24%);
+  --dl-theme-border-strong: rgb(244 245 247 / 18%);
+  --dl-theme-topbar-bg: rgb(17 19 24 / 88%);
+  --dl-theme-card-bg: #1b1e25;
+  --dl-theme-input-bg: #15171d;
+  --dl-theme-shadow: 0 8px 24px rgb(0 0 0 / 28%);
+  --dl-theme-chart-grid: rgb(244 245 247 / 8%);
+  --dl-theme-chart-tick: #6e7787;
+  --dl-theme-chart-track: #262a34;
 }

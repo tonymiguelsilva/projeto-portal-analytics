@@ -212,8 +212,8 @@ function App() {
           </Suspense>
         </main>
         <footer className="workspace-footer">
-          <span>PORTAL WEB ANALÍTICO</span>
-          <span>AMBIENTE LOCAL · FONTE DEMO</span>
+          <span>DATALENS ANALYTICS</span>
+          <span>AMBIENTE DEMO · ESCOPO REGIONAL ATIVO</span>
         </footer>
       </div>
     </div>

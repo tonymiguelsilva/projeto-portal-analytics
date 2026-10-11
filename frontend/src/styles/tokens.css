@@ -1,7 +1,7 @@
 :root {
-  font-family: 'Aptos', 'Trebuchet MS', sans-serif;
-  color: #18302d;
-  background: #f3f6f2;
+  font-family: var(--dl-font-sans);
+  color: var(--dl-theme-text-primary);
+  background: var(--dl-theme-canvas);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -18,8 +18,65 @@
   --coral: #dd805c;
   --success: #3b8d6b;
   --warning: #ba704e;
+
+  --dl-color-graphite: #111318;
+  --dl-color-black: #090a0d;
+  --dl-color-surface-dark: #1b1e25;
+  --dl-color-red: #e5484d;
+  --dl-color-text-light: #f4f5f7;
+  --dl-color-text-secondary: #8d96a5;
+
+  --dl-font-sans: 'Aptos', 'Trebuchet MS', sans-serif;
+  --dl-font-display: Georgia, 'Times New Roman', serif;
+  --dl-font-mono: 'Aptos Mono', Consolas, monospace;
+
+  --dl-space-1: 0.25rem;
+  --dl-space-2: 0.5rem;
+  --dl-space-3: 0.75rem;
+  --dl-space-4: 1rem;
+  --dl-space-5: 1.25rem;
+  --dl-space-6: 1.5rem;
+  --dl-space-8: 2rem;
+  --dl-space-10: 2.5rem;
+  --dl-space-12: 3rem;
+
+  --dl-radius-sm: 10px;
+  --dl-radius-md: 12px;
+  --dl-radius-lg: 16px;
+  --dl-radius-pill: 999px;
+
+  --dl-shadow-sm: 0 2px 8px rgb(17 19 24 / 5%);
+  --dl-shadow-md: 0 8px 24px rgb(17 19 24 / 8%);
+  --dl-shadow-lg: 0 16px 40px rgb(17 19 24 / 12%);
+
+  --dl-transition-fast: 140ms ease;
+  --dl-transition-standard: 200ms ease;
+  --dl-transition-slow: 300ms ease;
+
   font-size: 14px;
   font-weight: 400;
   line-height: 1.5;
   letter-spacing: 0;
+}
+
+:root[data-theme='light'] {
+  --dl-theme-color-scheme: light;
+  --dl-theme-canvas: #f4f5f7;
+  --dl-theme-surface: #fff;
+  --dl-theme-surface-raised: #fff;
+  --dl-theme-text-primary: #111318;
+  --dl-theme-text-secondary: #8d96a5;
+  --dl-theme-border: rgb(17 19 24 / 9%);
+  --dl-theme-shadow: var(--dl-shadow-sm);
+}
+
+:root[data-theme='dark'] {
+  --dl-theme-color-scheme: dark;
+  --dl-theme-canvas: #111318;
+  --dl-theme-surface: #1b1e25;
+  --dl-theme-surface-raised: #222630;
+  --dl-theme-text-primary: #f4f5f7;
+  --dl-theme-text-secondary: #8d96a5;
+  --dl-theme-border: rgb(244 245 247 / 10%);
+  --dl-theme-shadow: 0 8px 24px rgb(0 0 0 / 24%);
 }

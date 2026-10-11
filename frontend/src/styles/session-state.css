@@ -66,15 +66,9 @@
 
 .sidebar-account-name {
   margin-bottom: 2px;
-  color: #eef3ef;
-  font-size: 11px;
-  font-weight: 650;
-}
-
-.sidebar-account-region {
-  margin-bottom: 10px;
-  color: #a9bdb6;
+  color: var(--dl-color-text-light);
   font-size: 10px;
+  font-weight: 650;
 }
 
 .sidebar-logout {
@@ -113,16 +107,51 @@
 
   .sidebar.sidebar .sidebar-account,
   .sidebar.sidebar .sidebar-version {
+    display: block;
+  }
+
+  .sidebar.sidebar .sidebar-account {
+    min-width: 0;
+    flex: 1;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .sidebar.sidebar .sidebar-account .sidebar-bottom-label,
+  .sidebar.sidebar .sidebar-account .source-chip,
+  .sidebar.sidebar .sidebar-version {
     display: none;
   }
 
-  .sidebar.sidebar .sidebar-bottom .source-chip {
-    min-height: 32px;
-    padding: 0 8px;
+  .sidebar.sidebar .sidebar-account-identity {
+    gap: 7px;
+  }
+
+  .sidebar.sidebar .sidebar-account-avatar {
+    width: 29px;
+    height: 29px;
+  }
+
+  .sidebar.sidebar .sidebar-account-name {
+    max-width: 190px;
+  }
+
+  .sidebar.sidebar .sidebar-account-region {
+    display: block;
   }
 
   .sidebar.sidebar .sidebar-logout {
-    min-height: 34px;
+    width: 37px;
+    min-width: 37px;
+    min-height: 37px;
     margin-top: 0;
+    padding: 0;
+    font-size: 0;
+  }
+
+  .sidebar.sidebar .sidebar-logout svg {
+    width: 16px;
+    height: 16px;
   }
 }

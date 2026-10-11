@@ -5,11 +5,10 @@ import {
   notifyDemoSessionInvalidated,
 } from './demoSessionStorage'
 
-const DEFAULT_API_BASE_URL = 'http://localhost:8000'
 
-export const API_BASE_URL = import.meta.env.DEV
+const API_BASE_URL = import.meta.env.DEV
   ? ''
-  : (import.meta.env.VITE_API_BASE_URL?.trim() || DEFAULT_API_BASE_URL).replace(/\/+$/, '')
+  : (import.meta.env.VITE_API_BASE_URL?.trim() || '').replace(/\/+$/, '')
 
 export class ApiError extends Error {
   readonly status: number

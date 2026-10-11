@@ -1,3 +1,9 @@
+import os
+from pathlib import Path
+
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -16,6 +22,9 @@ from app.services.analytics_service import (
 from app.services.data_source import create_data_source
 from app.services.demo_sessions import DemoSessionStore
 
+FRONTEND_DIST = (
+    Path(__file__).resolve().parents[2] / "frontend" / "dist"
+)
 
 @asynccontextmanager
 async def lifespan(application: FastAPI) -> AsyncIterator[None]:
@@ -88,15 +97,35 @@ async def health_check():
     )
 
 
+
 @app.get("/", tags=["root"])
 async def root():
-    """Endpoint raiz com informações básicas"""
+    """Entrega o portal em produção e informações da API localmente."""
+    index_file = FRONTEND_DIST / "index.html"
+
+    if (
+        get_settings().environment == "prod"
+        and index_file.is_file()
+    ):
+        return FileResponse(index_file)
+
     return JSONResponse(
         status_code=200,
         content={
             "message": "Portal Web Analítico API",
             "version": "0.1.0",
             "docs": "/docs",
-            "health": "/health"
-        }
+            "health": "/health",
+        },
+    )
+
+
+if (
+    os.getenv("ENVIRONMENT", "dev").strip().lower() == "prod"
+    and FRONTEND_DIST.is_dir()
+):
+    app.mount(
+        "/",
+        StaticFiles(directory=FRONTEND_DIST, html=True),
+        name="frontend",
     )

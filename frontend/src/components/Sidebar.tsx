@@ -1,4 +1,4 @@
-import { Activity, BarChart3, LayoutDashboard, LogOut, UserRound } from 'lucide-react'
+import { Activity, BarChart3, BookOpen, Bot, Database, GitBranch, LayoutDashboard, LogOut, ServerCog, UserRound } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { NAV_ITEMS } from '../types/navigation'
 import type { ViewId } from '../types/navigation'
@@ -15,6 +15,11 @@ const NAV_ICONS: Record<ViewId, LucideIcon> = {
   overview: LayoutDashboard,
   commercial: BarChart3,
   operations: Activity,
+  data_quality: Database,
+  ai: Bot,
+  lineage: GitBranch,
+  status: ServerCog,
+  catalog: BookOpen,
 }
 
 function Sidebar({ activeView, onNavigate, identity, onLogout }: SidebarProps) {
@@ -28,15 +33,15 @@ function Sidebar({ activeView, onNavigate, identity, onLogout }: SidebarProps) {
       >
         <span className="brand-mark" aria-hidden="true" />
         <span className="brand-copy">
-          <strong>DataLens</strong>
-          <small>ANALYTICS WORKSPACE</small>
+          <strong>DataClyra</strong>
+          <small>ANALYTICS PLATFORM</small>
         </span>
       </button>
 
       <div className="sidebar-rule" />
       <p className="sidebar-label">ESPAÇO DE TRABALHO</p>
       <nav className="primary-navigation" aria-label="Seções do portal">
-        {NAV_ITEMS.map((item) => {
+        {NAV_ITEMS.filter((item) => item.id !== 'ai' && (!['data_quality', 'status'].includes(item.id) || identity.role === 'data_engineer')).map((item) => {
           const Icon = NAV_ICONS[item.id]
           return (
             <button
@@ -70,7 +75,7 @@ function Sidebar({ activeView, onNavigate, identity, onLogout }: SidebarProps) {
             <span className="source-chip-dot" />
             <span>Demo local</span>
           </div>
-          <p className="sidebar-version">DATALENS <span>·</span> DEMO</p>
+          <p className="sidebar-version">DATACLYRA <span>·</span> DEMO</p>
         </div>
         <button
           className="sidebar-logout"

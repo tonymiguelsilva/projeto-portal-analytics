@@ -8,13 +8,14 @@ DemoProfileId = Literal[
     "manager_south",
     "manager_southeast",
     "director_all",
+    "data_engineer_all",
 ]
 
 
 class DemoProfileView(BaseModel):
     profile_id: DemoProfileId
     label: str
-    role: Literal["analyst", "manager", "director"]
+    role: Literal["analyst", "manager", "director", "data_engineer"]
     region_label: str
 
 

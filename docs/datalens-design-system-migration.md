@@ -1,8 +1,8 @@
-# DataLens Design System: Modernização Concluída e Migração
+# DataClyra Design System: Modernização Concluída e Migração
 
 ## Visão Geral da Migração
 
-A modernização visual do portal analítico para a identidade DataLens SaaS foi concluída com sucesso em todas as camadas da aplicação frontend, mantendo 100% de integridade dos contratos de API, autenticação demonstrativa e regras de escopo regional.
+A modernização visual do portal analítico para a identidade DataClyra SaaS foi concluída com sucesso em todas as camadas da aplicação frontend, mantendo 100% de integridade dos contratos de API, autenticação demonstrativa e regras de escopo regional.
 
 ---
 
@@ -43,7 +43,7 @@ Os tokens fundamentais da marca e papéis de tema semânticos estão totalmente 
 ## 3. Gráficos Reativos com Recharts (`src/utils/chartTheme.ts`)
 
 - Criado o hook `useChartTheme` com `MutationObserver` para alternância dinâmica em tempo real das cores dos gráficos da biblioteca Recharts:
-  - **Visão Geral**: Curva de evolução do faturamento líquido com linhas, pontos e tooltips com contraste escuro/claro perfeito e linha de destaque no vermelho DataLens.
+  - **Visão Geral**: Curva de evolução do faturamento líquido com linhas, pontos e tooltips com contraste escuro/claro perfeito e linha de destaque no vermelho DataClyra.
   - **Comercial**: Gráfico de barras horizontais com raios modernos, fundo de tooltip em superfície semântica e destaque nas categorias.
   - **Operacional**: Gráfico de situação de pedidos com distinção semântica (entregues em verde, abertos em âmbar, cancelados em vermelho) e medidor radial (radial bar gauge) de pontualidade de entrega com trilha adaptativa.
 
@@ -58,7 +58,7 @@ Os tokens fundamentais da marca e papéis de tema semânticos estão totalmente 
 3. **Tabela de Desempenho Comercial (`CommercialPage.tsx`)**:
    - Cabeçalhos uppercase com contraste adequado, linhas com hover sutil e alinhamento de valores monetários.
 4. **Estados de Consulta (`QueryState.tsx`)**:
-   - Estados de carregamento com spinner em vermelho DataLens, banners de erro destacados em vermelho suave e estado vazio elegante.
+   - Estados de carregamento com spinner em vermelho DataClyra, banners de erro destacados em vermelho suave e estado vazio elegante.
 5. **Autenticação Demo e Estados de Sessão (`DemoLoginPage.tsx`, `demo-login.css`, `session-state.css`)**:
    - Seleção de perspectiva em grid moderno, badges de região com pin icon, destaque do perfil ativo e aviso de demonstração consistente.
 6. **Shell e Topbar (`app.css`)**:

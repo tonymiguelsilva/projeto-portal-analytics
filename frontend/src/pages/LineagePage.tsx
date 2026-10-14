@@ -1,0 +1,12 @@
+import { Braces, ChartNoAxesCombined, Database, FileSpreadsheet, Filter, ShieldCheck, Workflow } from 'lucide-react'
+
+const stages = [
+  { icon: FileSpreadsheet, title: 'CSV demonstrativo', text: 'data/demo/orders.csv: um registro por pedido, sem atualização externa.' },
+  { icon: Braces, title: 'Fonte e contrato', text: 'DemoDataSource lê o arquivo; OrderRecord valida campos, datas, valores e status.' },
+  { icon: Workflow, title: 'Serviço analítico', text: 'AnalyticsService aplica filtros, calcula receita líquida, lucro e indicadores.' },
+  { icon: ShieldCheck, title: 'API e acesso', text: 'FastAPI aplica sessão Demo, escopo regional e autorização técnica quando necessária.' },
+  { icon: Filter, title: 'Serviços do frontend', text: 'Filtros globais seguem para os endpoints autorizados e exportações.' },
+  { icon: ChartNoAxesCombined, title: 'Visualizações', text: 'Dashboards, qualidade, exportação e assistente usam o mesmo recorte.' },
+]
+
+export default function LineagePage() { return <div className="dashboard-page lineage-page"><section className="page-heading"><div><p className="eyebrow"><span className="eyebrow-line" /> GOVERNANÇA</p><h1>Linhagem dos dados<span className="heading-period">.</span></h1><p className="page-intro">Do arquivo demonstrativo às decisões no portal, com controle de acesso em cada consulta.</p></div><div className="page-heading-icon" aria-hidden="true"><Database size={23} /></div></section><section className="lineage-flow" aria-label="Fluxo de linhagem operacional">{stages.map(({ icon: Icon, title, text }, index) => <div className="lineage-stage" key={title}><div className="lineage-icon"><Icon size={21} /></div><div><span>ETAPA {String(index + 1).padStart(2, '0')}</span><h2>{title}</h2><p>{text}</p></div>{index < stages.length - 1 && <i className="lineage-connector" aria-hidden="true" />}</div>)}</section><section className="lineage-notes"><article><strong>Onde a qualidade é verificada</strong><p>Na validação Pydantic e na Central de Qualidade, que avalia completude, unicidade, unidades, valores, datas e distribuição de status.</p></article><article><strong>Onde filtros e permissões atuam</strong><p>Na API, antes de métricas, detalhes e exportação. O escopo regional vem da sessão Demo.</p></article><article><strong>Limite do ambiente Demo</strong><p>Não há BigQuery, atualização automática nem serviço externo em operação. A arquitetura Projeto 2 permanece apenas como referência documentada.</p></article></section></div> }

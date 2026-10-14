@@ -52,6 +52,12 @@ DEMO_PROFILES: dict[DemoProfileId, DemoIdentity] = {
         role="director",
         allowed_regions=None,
     ),
+    "data_engineer_all": DemoIdentity(
+        profile_id="data_engineer_all",
+        label="TI / Dados — todas as regiões",
+        role="data_engineer",
+        allowed_regions=None,
+    ),
 }
 
 

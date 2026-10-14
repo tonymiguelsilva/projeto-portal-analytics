@@ -76,6 +76,33 @@ export interface OperationsResponse {
   }
 }
 
+export interface QualityRuleResult {
+  valid_record_count: number
+  invalid_record_count: number
+  valid_pct: number | null
+}
+
+export interface DataQualityResponse {
+  period: AnalyticsPeriod
+  records_evaluated: number
+  duplicate_order_ids: number
+  duplicate_order_id_pct: number | null
+  required_fields: {
+    field_count: number
+    values_populated: number
+    values_expected: number
+    completeness_pct: number | null
+  }
+  units: QualityRuleResult
+  monetary_values: QualityRuleResult
+  temporal_consistency: QualityRuleResult
+  status_distribution: Array<{
+    status: OrderStatus
+    record_count: number
+    percentage: number | null
+  }>
+}
+
 export interface FilterOptionsResponse {
   period: AnalyticsPeriod
   regions: string[]

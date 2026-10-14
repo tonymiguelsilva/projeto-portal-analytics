@@ -77,3 +77,39 @@ class AnalyticsFilters(BaseModel):
         ):
             raise ValueError("start_date deve ser anterior ou igual a end_date")
         return self
+
+
+class AnalyticsPeriodResponse(BaseModel):
+    start_date: str | None
+    end_date: str | None
+
+
+class QualityRuleResponse(BaseModel):
+    valid_record_count: int
+    invalid_record_count: int
+    valid_pct: float | None
+
+
+class RequiredFieldsQualityResponse(BaseModel):
+    field_count: int
+    values_populated: int
+    values_expected: int
+    completeness_pct: float | None
+
+
+class StatusDistributionResponse(BaseModel):
+    status: OrderStatus
+    record_count: int
+    percentage: float | None
+
+
+class DataQualityResponse(BaseModel):
+    period: AnalyticsPeriodResponse
+    records_evaluated: int
+    duplicate_order_ids: int
+    duplicate_order_id_pct: float | None
+    required_fields: RequiredFieldsQualityResponse
+    units: QualityRuleResponse
+    monetary_values: QualityRuleResponse
+    temporal_consistency: QualityRuleResponse
+    status_distribution: list[StatusDistributionResponse]

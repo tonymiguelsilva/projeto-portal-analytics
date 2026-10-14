@@ -10,7 +10,7 @@
   transition: background-color var(--dl-transition-standard);
 }
 
-/* ---------------- Sidebar DataLens ---------------- */
+/* ---------------- Sidebar DataClyra ---------------- */
 .sidebar {
   position: sticky;
   top: 0;
@@ -301,6 +301,8 @@
   align-items: center;
   gap: 12px;
 }
+
+.export-action { position: relative; }.export-button { display:inline-flex; align-items:center; gap:7px; min-height:34px; padding:0 11px; border:1px solid var(--dl-theme-border); border-radius:7px; color:var(--dl-theme-text-primary); background:var(--dl-theme-surface); font:inherit; font-size:12px; font-weight:700; cursor:pointer; transition:background var(--dl-transition-fast), border-color var(--dl-transition-fast); }.export-button:hover:not(:disabled) { border-color:var(--dl-color-blue); background:var(--dl-color-blue-subtle); }.export-button:disabled { opacity:.65; cursor:wait; }.export-action > span { position:absolute; right:0; top:40px; width:max-content; max-width:220px; padding:6px 8px; border-radius:5px; color:var(--dl-theme-text-primary); background:var(--dl-theme-surface); box-shadow:0 3px 12px rgba(0,0,0,.14); font-size:11px; }
 
 .breadcrumbs {
   display: inline-flex;

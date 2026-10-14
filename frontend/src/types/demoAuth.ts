@@ -3,10 +3,11 @@ export const DEMO_PROFILE_IDS = [
   'manager_south',
   'manager_southeast',
   'director_all',
+  'data_engineer_all',
 ] as const
 
 export type DemoProfileId = (typeof DEMO_PROFILE_IDS)[number]
-export type DemoRole = 'analyst' | 'manager' | 'director'
+export type DemoRole = 'analyst' | 'manager' | 'director' | 'data_engineer'
 
 export interface DemoProfile {
   profile_id: DemoProfileId

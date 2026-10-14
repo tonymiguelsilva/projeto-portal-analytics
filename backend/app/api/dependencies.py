@@ -57,3 +57,17 @@ def get_analytics_filters(
         category=category,
         status=status,
     )
+
+
+def require_technical_identity(
+    identity: Annotated[DemoIdentity, Depends(get_demo_identity)],
+) -> DemoIdentity:
+    if identity.role != "data_engineer":
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "code": "technical_access_required",
+                "message": "Esta área é exclusiva do perfil demonstrativo de TI/Dados.",
+            },
+        )
+    return identity

@@ -3,6 +3,7 @@ import type {
   AnalyticsFilters,
   AnalyticsMetrics,
   AnalyticsPeriod,
+  DataQualityResponse,
   FilterOptionsResponse,
   OperationsResponse,
   OrderDetailResponse,
@@ -242,6 +243,14 @@ export function fetchOperations(filters: AnalyticsFilters, signal?: AbortSignal)
   )
 }
 
+export function fetchDataQuality(filters: AnalyticsFilters, signal?: AbortSignal) {
+  return getValidated(
+    `/api/v1/analytics/data-quality${buildQuery(filters)}`,
+    parseDataQuality,
+    signal,
+  )
+}
+
 export function fetchFilterOptions(signal?: AbortSignal) {
   return getValidated('/api/v1/analytics/filters', parseFilters, signal)
 }
@@ -249,4 +258,47 @@ export function fetchFilterOptions(signal?: AbortSignal) {
 export function fetchOrderDetail(orderId: string, signal?: AbortSignal) {
   const path = `/api/v1/analytics/orders/${encodeURIComponent(orderId)}`
   return getValidated(path, parseOrder, signal)
+}
+
+function parseDataQuality(value: unknown, endpoint: string): DataQualityResponse {
+  const result = asRecord(value, endpoint)
+  const requiredFields = asRecord(result.required_fields, endpoint)
+  const parseQualityRule = (rule: unknown) => {
+    const item = asRecord(rule, endpoint)
+    return {
+      valid_record_count: asNumber(item.valid_record_count, endpoint),
+      invalid_record_count: asNumber(item.invalid_record_count, endpoint),
+      valid_pct: asNullableNumber(item.valid_pct, endpoint),
+    }
+  }
+  const statuses = ['delivered', 'shipped', 'pending', 'cancelled']
+  if (!Array.isArray(result.status_distribution)) {
+    throw new InvalidAnalyticsResponseError(endpoint)
+  }
+  const status_distribution = result.status_distribution.map((entry) => {
+    const item = asRecord(entry, endpoint)
+    const status = asString(item.status, endpoint)
+    if (!statuses.includes(status)) throw new InvalidAnalyticsResponseError(endpoint)
+    return {
+      status: status as OrderStatus,
+      record_count: asNumber(item.record_count, endpoint),
+      percentage: asNullableNumber(item.percentage, endpoint),
+    }
+  })
+  return {
+    period: parsePeriod(result.period, endpoint),
+    records_evaluated: asNumber(result.records_evaluated, endpoint),
+    duplicate_order_ids: asNumber(result.duplicate_order_ids, endpoint),
+    duplicate_order_id_pct: asNullableNumber(result.duplicate_order_id_pct, endpoint),
+    required_fields: {
+      field_count: asNumber(requiredFields.field_count, endpoint),
+      values_populated: asNumber(requiredFields.values_populated, endpoint),
+      values_expected: asNumber(requiredFields.values_expected, endpoint),
+      completeness_pct: asNullableNumber(requiredFields.completeness_pct, endpoint),
+    },
+    units: parseQualityRule(result.units),
+    monetary_values: parseQualityRule(result.monetary_values),
+    temporal_consistency: parseQualityRule(result.temporal_consistency),
+    status_distribution,
+  }
 }

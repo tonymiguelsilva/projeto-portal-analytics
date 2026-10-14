@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal, ROUND_HALF_UP
 from typing import Any
 
@@ -12,6 +12,20 @@ DATA_RESOURCE = "orders.csv"
 ZERO = Decimal("0")
 MONEY_QUANTUM = Decimal("0.01")
 PERCENT_QUANTUM = Decimal("0.01")
+REQUIRED_ORDER_FIELDS = (
+    "order_id",
+    "order_date",
+    "region",
+    "sales_channel",
+    "product_category",
+    "customer_segment",
+    "units",
+    "gross_revenue",
+    "discount_amount",
+    "cost_amount",
+    "status",
+    "promised_delivery_date",
+)
 
 
 class AnalyticsDataUnavailableError(Exception):
@@ -301,6 +315,159 @@ class AnalyticsService:
                 "open_order_count": metrics["open_order_count"],
             },
         }
+
+    def data_quality(self, filters: AnalyticsFilters) -> dict[str, Any]:
+        """Reports rule-level quality results for the validated, authorized slice.
+
+        Invalid, empty, unavailable or duplicate datasets are intentionally rejected by
+        ``load_orders`` before this report is produced. Those conditions prevent an
+        evaluation and remain distinct from record-level rule violations.
+        """
+        orders = self.load_orders()
+        scoped_orders, start_date, end_date = self._prepare_orders(orders, filters)
+        selected = self._select_orders(
+            scoped_orders, filters, start_date, end_date
+        )
+        records_evaluated = len(selected)
+        order_ids = [order.order_id for order in selected]
+        duplicate_order_ids = len(order_ids) - len(set(order_ids))
+        required_values_expected = records_evaluated * len(REQUIRED_ORDER_FIELDS)
+        required_values_populated = sum(
+            getattr(order, field) is not None
+            for order in selected
+            for field in REQUIRED_ORDER_FIELDS
+        )
+        valid_unit_records = sum(order.units > 0 for order in selected)
+        valid_monetary_records = sum(
+            order.gross_revenue >= ZERO
+            and order.discount_amount >= ZERO
+            and order.cost_amount >= ZERO
+            and order.discount_amount <= order.gross_revenue
+            for order in selected
+        )
+        valid_temporal_records = sum(
+            order.promised_delivery_date >= order.order_date
+            and (order.shipped_at is None or order.shipped_at >= order.order_date)
+            and (
+                order.delivered_at is None
+                or (
+                    order.shipped_at is not None
+                    and order.delivered_at >= order.shipped_at
+                )
+            )
+            and (
+                (order.status == "delivered" and order.shipped_at is not None and order.delivered_at is not None)
+                or (order.status == "shipped" and order.shipped_at is not None and order.delivered_at is None)
+                or (order.status in {"pending", "cancelled"} and order.shipped_at is None and order.delivered_at is None)
+            )
+            for order in selected
+        )
+        status_distribution = [
+            {
+                "status": status,
+                "record_count": sum(order.status == status for order in selected),
+                "percentage": self._percentage(
+                    sum(order.status == status for order in selected), records_evaluated
+                ),
+            }
+            for status in ("delivered", "shipped", "pending", "cancelled")
+        ]
+
+        return {
+            "period": self._period_payload(start_date, end_date),
+            "records_evaluated": records_evaluated,
+            "duplicate_order_ids": duplicate_order_ids,
+            "duplicate_order_id_pct": self._percentage(
+                duplicate_order_ids, records_evaluated
+            ),
+            "required_fields": {
+                "field_count": len(REQUIRED_ORDER_FIELDS),
+                "values_populated": required_values_populated,
+                "values_expected": required_values_expected,
+                "completeness_pct": self._percentage(
+                    required_values_populated, required_values_expected
+                ),
+            },
+            "units": {
+                "valid_record_count": valid_unit_records,
+                "invalid_record_count": records_evaluated - valid_unit_records,
+                "valid_pct": self._percentage(valid_unit_records, records_evaluated),
+            },
+            "monetary_values": {
+                "valid_record_count": valid_monetary_records,
+                "invalid_record_count": records_evaluated - valid_monetary_records,
+                "valid_pct": self._percentage(valid_monetary_records, records_evaluated),
+            },
+            "temporal_consistency": {
+                "valid_record_count": valid_temporal_records,
+                "invalid_record_count": records_evaluated - valid_temporal_records,
+                "valid_pct": self._percentage(valid_temporal_records, records_evaluated),
+            },
+            "status_distribution": status_distribution,
+        }
+
+    def export_fieldnames(self) -> list[str]:
+        return [
+            "order_id", "order_date", "region", "sales_channel", "product_category",
+            "customer_segment", "units", "gross_revenue", "discount_amount", "cost_amount",
+            "status", "promised_delivery_date", "shipped_at", "delivered_at", "net_revenue", "gross_profit",
+        ]
+
+    @staticmethod
+    def csv_safe_value(value: Any) -> Any:
+        """Prevent spreadsheet formula evaluation while retaining the original value."""
+        if isinstance(value, str) and value[:1] in ("=", "+", "-", "@"):
+            return "'" + value
+        return value
+
+    def export_orders(self, filters: AnalyticsFilters) -> list[dict[str, Any]]:
+        orders = self.load_orders()
+        scoped, start_date, end_date = self._prepare_orders(orders, filters)
+        return [self._order_view(order) for order in self._select_orders(scoped, filters, start_date, end_date)]
+
+    def assistant_answer(self, question: str, filters: AnalyticsFilters) -> dict[str, Any]:
+        """Deterministic demo assistant: intent matching only, never executes user input."""
+        orders = self.load_orders()
+        scoped, start_date, end_date = self._prepare_orders(orders, filters)
+        selected = self._select_orders(scoped, filters, start_date, end_date)
+        metrics = self._metrics(selected)
+        normalized = question.casefold()
+        period = self._period_payload(start_date, end_date)
+        if not selected:
+            return {"answer": "Não há dados para os filtros e escopo regional selecionados.", "period": period, "intent": "no_data"}
+        if any(term in normalized for term in ("faturamento", "receita", "ticket", "lucro")):
+            if "ticket" in normalized:
+                answer = f"O ticket médio é {metrics['average_ticket']}. Métrica: receita líquida de pedidos não cancelados dividida pela quantidade de pedidos não cancelados."
+                intent = "average_ticket"
+            elif "lucro" in normalized:
+                answer = f"O lucro bruto é {metrics['gross_profit']}. Métrica: receita líquida menos custo dos pedidos não cancelados."
+                intent = "gross_profit"
+            else:
+                answer = f"O faturamento (receita líquida) é {metrics['net_revenue']}. Métrica: receita bruta menos desconto, excluindo pedidos cancelados."
+                intent = "net_revenue"
+        elif any(term in normalized for term in ("pedido", "pendente", "enviado", "entregue", "cancelado")):
+            labels = {"pending": "pendentes", "shipped": "enviados", "delivered": "entregues", "cancelled": "cancelados"}
+            requested = next((status for status, label in labels.items() if label[:-1] in normalized or label in normalized), None)
+            count = sum(order.status == requested for order in selected) if requested else metrics["total_order_count"]
+            answer = f"Há {count} pedido(s) {labels[requested] if requested else 'no recorte'}."
+            intent = "order_status" if requested else "order_count"
+        elif any(term in normalized for term in ("região", "regiao", "categoria", "produto", "evolução", "evolucao", "mensal", "variação", "variacao")):
+            dimension = "region" if "regi" in normalized else "category"
+            grouped = self.sales(filters, dimension)["items"]
+            summary = ", ".join(f"{item['value']}: {item['net_revenue']}" for item in grouped)
+            answer = f"Receita líquida por {'região' if dimension == 'region' else 'categoria'}: {summary}."
+            intent = f"by_{dimension}"
+        else:
+            return {"answer": "Sou o assistente demonstrativo DataClyra AI. Posso responder sobre faturamento, pedidos, ticket médio, lucro, regiões, categorias e evolução mensal usando os filtros ativos.", "period": period, "intent": "unsupported"}
+        return {"answer": answer, "period": period, "intent": intent}
+
+    def system_status(self) -> dict[str, Any]:
+        orders = self.load_orders()
+        dates = [order.order_date for order in orders]
+        source_path = getattr(self.data_source, "data_dir", None)
+        file_path = source_path / DATA_RESOURCE if source_path is not None else None
+        modified = datetime.fromtimestamp(file_path.stat().st_mtime, timezone.utc).isoformat() if file_path and file_path.is_file() else None
+        return {"api_status": "ok", "data_source": type(self.data_source).__name__, "record_count": len(orders), "min_order_date": min(dates).isoformat(), "max_order_date": max(dates).isoformat(), "checked_at": datetime.now(timezone.utc).isoformat(), "source_modified_at": modified}
 
     def filter_options(self) -> dict[str, Any]:
         orders = self.load_orders()

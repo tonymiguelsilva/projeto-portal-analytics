@@ -31,7 +31,7 @@ export class ApiError extends Error {
 
 function isProtectedAnalyticsPath(path: string): boolean {
   const pathname = path.split(/[?#]/, 1)[0].replace(/^\/+/, '')
-  return pathname.startsWith('api/v1/analytics/')
+  return pathname.startsWith('api/v1/analytics/') || pathname.startsWith('api/v1/system/')
 }
 
 export async function apiRequest<T>(

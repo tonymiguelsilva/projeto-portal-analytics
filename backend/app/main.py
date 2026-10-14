@@ -13,6 +13,7 @@ from fastapi.responses import JSONResponse
 from app.api.dependencies import get_data_source
 from app.api.routes.analytics import router as analytics_router
 from app.api.routes.demo_auth import router as demo_auth_router
+from app.api.routes.system import router as system_router
 from app.core.config import get_settings
 from app.services.analytics_service import (
     AnalyticsDataInvalidError,
@@ -41,6 +42,7 @@ app = FastAPI(
 )
 app.include_router(analytics_router)
 app.include_router(demo_auth_router)
+app.include_router(system_router)
 
 
 @app.exception_handler(AnalyticsDataUnavailableError)

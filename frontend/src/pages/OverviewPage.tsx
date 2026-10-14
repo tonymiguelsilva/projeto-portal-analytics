@@ -20,6 +20,7 @@ import {
 import MetricCard from '../components/MetricCard'
 import Panel from '../components/Panel'
 import QueryState from '../components/QueryState'
+import AutomatedInsights from '../components/AutomatedInsights'
 import { fetchOverview, fetchTrends } from '../services/analytics'
 import type { AnalyticsFilters, OverviewResponse, TrendsResponse } from '../types/api'
 import { formatCompactCurrency, formatCurrency, formatInteger, formatMonth, formatPercent, formatVariation } from '../utils/format'
@@ -113,6 +114,7 @@ function OverviewPage({ filters }: OverviewPageProps) {
                 <div><span>Entregas no prazo</span><strong>{formatPercent(metrics.on_time_delivery_rate_pct)} <small>· base: pedidos entregues</small></strong></div>
               </div>
             </section>
+            <AutomatedInsights filters={filters} />
 
             <Panel
               eyebrow="SÉRIE TEMPORAL"

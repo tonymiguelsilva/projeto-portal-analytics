@@ -1,6 +1,6 @@
 export type Theme = 'light' | 'dark'
 
-const THEME_STORAGE_KEY = 'datalens_theme'
+const THEME_STORAGE_KEY = 'dataclyra_theme'
 
 export function getInitialTheme(): Theme {
   try {

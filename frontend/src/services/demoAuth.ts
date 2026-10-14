@@ -55,7 +55,7 @@ function parseProfile(value: unknown, endpoint: string): DemoProfile {
   if (!DEMO_PROFILE_IDS.includes(profileId as DemoProfileId)) {
     throw new InvalidDemoAuthResponseError(endpoint)
   }
-  if (!['analyst', 'manager', 'director'].includes(role)) {
+  if (!['analyst', 'manager', 'director', 'data_engineer'].includes(role)) {
     throw new InvalidDemoAuthResponseError(endpoint)
   }
 

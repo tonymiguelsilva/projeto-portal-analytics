@@ -239,6 +239,22 @@ class AnalyticsServiceTests(unittest.TestCase):
         self.assertEqual(result["items"][0]["net_revenue"], Decimal("0"))
         self.assertEqual(result["items"][0]["valid_order_count"], 0)
 
+    def test_data_quality_reports_rule_level_percentages(self) -> None:
+        result = self.service.data_quality(AnalyticsFilters())
+
+        self.assertEqual(result["records_evaluated"], 3)
+        self.assertEqual(result["duplicate_order_ids"], 0)
+        self.assertEqual(result["required_fields"]["values_expected"], 36)
+        self.assertEqual(result["required_fields"]["values_populated"], 36)
+        self.assertEqual(result["required_fields"]["completeness_pct"], Decimal("100.00"))
+        self.assertEqual(result["units"]["valid_pct"], Decimal("100.00"))
+        self.assertEqual(result["monetary_values"]["valid_pct"], Decimal("100.00"))
+        self.assertEqual(result["temporal_consistency"]["valid_pct"], Decimal("100.00"))
+        self.assertEqual(
+            {item["status"]: item["record_count"] for item in result["status_distribution"]},
+            {"delivered": 1, "shipped": 0, "pending": 1, "cancelled": 1},
+        )
+
     def test_trends_include_empty_months_in_requested_range(self) -> None:
         result = self.service.trends(
             AnalyticsFilters(start_date=date(2026, 1, 1), end_date=date(2026, 3, 31))
@@ -278,12 +294,14 @@ class AnalyticsServiceTests(unittest.TestCase):
         sales = service.sales(AnalyticsFilters(), "region")
         operations = service.operations(AnalyticsFilters())
         filter_options = service.filter_options()
+        data_quality = service.data_quality(AnalyticsFilters())
 
         self.assertEqual(overview["metrics"]["total_order_count"], 1)
         self.assertEqual(sum(item["total_order_count"] for item in trends["items"]), 1)
         self.assertEqual([item["value"] for item in sales["items"]], ["Sul"])
         self.assertEqual(operations["metrics"]["total_order_count"], 1)
         self.assertEqual(filter_options["regions"], ["Sul"])
+        self.assertEqual(data_quality["records_evaluated"], 1)
         self.assertIsNotNone(service.order_detail("SOUTH-1"))
         self.assertIsNone(service.order_detail("A-1"))
 

@@ -66,6 +66,7 @@ function roleLabel(role: DemoProfile['role']): string {
     analyst: 'Analista',
     manager: 'Gerente',
     director: 'Diretor',
+    data_engineer: 'TI / Dados',
   }
   return labels[role]
 }
@@ -127,9 +128,9 @@ function DemoLoginPage({ onSessionStarted }: DemoLoginPageProps) {
   return (
     <main className="demo-login-page">
       <header className="demo-login-topbar">
-        <div className="demo-login-brand" aria-label="DataLens">
+        <div className="demo-login-brand" aria-label="DataClyra">
           <span className="brand-mark" aria-hidden="true" />
-          <span className="demo-login-brand-name">DataLens</span>
+          <span className="demo-login-brand-name">DataClyra</span>
         </div>
         <span className="demo-login-mode">
           <span className="demo-login-mode-dot" aria-hidden="true" />
@@ -140,11 +141,11 @@ function DemoLoginPage({ onSessionStarted }: DemoLoginPageProps) {
       <div className="demo-login-content">
         <section className="demo-login-intro" aria-labelledby="demo-login-title">
           <p className="demo-login-eyebrow">
-            <span className="demo-login-eyebrow-rule" /> PORTAL WEB ANALÍTICO
+            <span className="demo-login-eyebrow-rule" /> ANALYTICS PLATFORM
           </p>
-          <h1 id="demo-login-title">Entre no DataLens<span>.</span></h1>
+          <h1 id="demo-login-title">Entre no DataClyra<span>.</span></h1>
           <p className="demo-login-description">
-            Selecione uma perspectiva para explorar os indicadores do negócio.
+            Data into perspective.
           </p>
         </section>
 
@@ -263,7 +264,7 @@ function DemoLoginPage({ onSessionStarted }: DemoLoginPageProps) {
       </div>
 
       <footer className="demo-login-footer">
-        <span>DATALENS · PORTAL ANALÍTICO</span>
+        <span>DATACLYRA · ANALYTICS PLATFORM</span>
         <span>AMBIENTE LOCAL · DADOS DEMO</span>
       </footer>
     </main>

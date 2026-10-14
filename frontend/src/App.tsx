@@ -1,9 +1,10 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
-import { AlertTriangle, LoaderCircle, RefreshCw } from 'lucide-react'
+import { AlertTriangle, Download, LoaderCircle, RefreshCw } from 'lucide-react'
 import ConnectionStatus from './components/ConnectionStatus'
 import DashboardFilters from './components/DashboardFilters'
 import Sidebar from './components/Sidebar'
 import ThemeToggle from './components/ThemeToggle'
+import DataClyraAssistant from './components/DataClyraAssistant'
 import DemoLoginPage from './pages/DemoLoginPage'
 import { ApiError } from './services/api'
 import { fetchFilterOptions } from './services/analytics'
@@ -12,7 +13,7 @@ import {
   endDemoSession,
   getCurrentDemoSession,
 } from './services/demoAuth'
-import { onDemoSessionInvalidated } from './services/demoSessionStorage'
+import { DEMO_SESSION_HEADER, getDemoSessionId, onDemoSessionInvalidated } from './services/demoSessionStorage'
 import type { DemoProfile, DemoSessionResponse } from './types/demoAuth'
 import type { AnalyticsFilters, FilterOptionsResponse } from './types/api'
 import { NAV_ITEMS } from './types/navigation'
@@ -26,6 +27,11 @@ import './styles/session-state.css'
 const OverviewPage = lazy(() => import('./pages/OverviewPage'))
 const CommercialPage = lazy(() => import('./pages/CommercialPage'))
 const OperationsPage = lazy(() => import('./pages/OperationsPage'))
+const DataQualityPage = lazy(() => import('./pages/DataQualityPage'))
+const DataClyraAiPage = lazy(() => import('./pages/DataClyraAiPage'))
+const LineagePage = lazy(() => import('./pages/LineagePage'))
+const SystemStatusPage = lazy(() => import('./pages/SystemStatusPage'))
+const DataCatalogPage = lazy(() => import('./pages/DataCatalogPage'))
 
 type SessionState =
   | { status: 'checking' }
@@ -39,12 +45,21 @@ function App() {
   const [sessionCheckKey, setSessionCheckKey] = useState(0)
   const [activeView, setActiveView] = useState<ViewId>('overview')
   const [filters, setFilters] = useState<AnalyticsFilters>({})
+  const [exportState, setExportState] = useState<{ loading: boolean; message: string }>({ loading: false, message: '' })
   const [filterOptions, setFilterOptions] = useState<FilterOptionsResponse | null>(null)
   const [filterOptionsProfileId, setFilterOptionsProfileId] = useState<string | null>(null)
   const [filterOptionsErrorState, setFilterOptionsErrorState] = useState<{
     profileId: string
     message: string | null
   } | null>(null)
+
+  useEffect(() => {
+    if (!exportState.message) return
+    const timeout = window.setTimeout(() => {
+      setExportState((state) => state.loading ? state : { ...state, message: '' })
+    }, 3500)
+    return () => window.clearTimeout(timeout)
+  }, [exportState.message])
 
   const toggleTheme = () => {
     const nextTheme: Theme = theme === 'light' ? 'dark' : 'light'
@@ -64,6 +79,7 @@ function App() {
     && filterOptionsErrorState?.profileId === activeProfileId
     ? filterOptionsErrorState.message
     : null
+  const technical = sessionState.status === 'authenticated' && sessionState.profile.role === 'data_engineer'
   const currentView = NAV_ITEMS.find((item) => item.id === activeView) ?? NAV_ITEMS[0]
 
   useEffect(() => {
@@ -129,6 +145,23 @@ function App() {
   }, [activeProfileId])
 
   const updateFilters = (nextFilters: AnalyticsFilters) => setFilters(nextFilters)
+  const exportFilteredOrders = async () => {
+    setExportState({ loading: true, message: '' })
+    try {
+    const query = new URLSearchParams()
+    Object.entries(filters).forEach(([key, value]) => { if (value) query.set(key, value) })
+    const sessionId = getDemoSessionId()
+    const response = await fetch(`/api/v1/analytics/export.csv?${query}`, { headers: sessionId ? { [DEMO_SESSION_HEADER]: sessionId } : {} })
+    if (!response.ok) throw new Error('Não foi possível exportar os registros filtrados.')
+    const blob = await response.blob()
+    if (blob.size <= 3) throw new Error('Não há registros para exportar.')
+    const url = URL.createObjectURL(blob); const link = document.createElement('a')
+    link.href = url; link.download = 'dataclyra-orders.csv'; link.click(); URL.revokeObjectURL(url)
+      setExportState({ loading: false, message: 'Exportação concluída.' })
+    } catch (error) {
+      setExportState({ loading: false, message: error instanceof Error ? error.message : 'Não foi possível exportar os registros.' })
+    }
+  }
 
   const handleSessionStarted = (session: DemoSessionResponse) => {
     setFilterOptions(null)
@@ -158,7 +191,7 @@ function App() {
     return (
       <main className="session-state-page" role="status" aria-live="polite">
         <LoaderCircle className="session-state-spinner" size={23} aria-hidden="true" />
-        <strong>Validando sessão DataLens</strong>
+        <strong>Validando sessão DataClyra</strong>
         <span>Consultando o backend antes de abrir o portal.</span>
       </main>
     )
@@ -205,6 +238,7 @@ function App() {
             <strong>{currentView.label}</strong>
           </div>
           <div className="topbar-actions">
+            <div className="export-action"><button className="export-button" type="button" onClick={() => void exportFilteredOrders()} disabled={exportState.loading}><Download size={15} aria-hidden="true" />{exportState.loading ? 'Exportando…' : 'Exportar CSV'}</button>{exportState.message && <span role="status">{exportState.message}</span>}</div>
             <ThemeToggle theme={theme} onToggle={toggleTheme} />
             <ConnectionStatus />
           </div>
@@ -225,12 +259,18 @@ function App() {
             {activeView === 'overview' && <OverviewPage filters={filters} />}
             {activeView === 'commercial' && <CommercialPage filters={filters} />}
             {activeView === 'operations' && <OperationsPage filters={filters} />}
+            {activeView === 'data_quality' && <DataQualityPage filters={filters} />}
+            {activeView === 'ai' && <DataClyraAiPage filters={filters} />}
+            {activeView === 'lineage' && <LineagePage />}
+            {activeView === 'status' && technical && <SystemStatusPage />}
+            {activeView === 'catalog' && <DataCatalogPage />}
           </Suspense>
         </main>
         <footer className="workspace-footer">
-          <span>DATALENS ANALYTICS</span>
+          <span>DATACLYRA ANALYTICS PLATFORM</span>
           <span>AMBIENTE DEMO · ESCOPO REGIONAL ATIVO</span>
         </footer>
+        <DataClyraAssistant filters={filters} />
       </div>
     </div>
   )

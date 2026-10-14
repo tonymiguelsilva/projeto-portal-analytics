@@ -55,10 +55,26 @@ Todos os endpoints analíticos usam `data/demo/orders.csv` sob demanda. `start_d
 | `GET /api/v1/analytics/trends` | KPIs agrupados por mês, incluindo meses sem pedidos. |
 | `GET /api/v1/analytics/sales?dimension=category` | Agregados por `region`, `channel` ou `category`. |
 | `GET /api/v1/analytics/operations` | Cancelamentos, entregas, prazo médio e pedidos em aberto. |
+| `GET /api/v1/analytics/data-quality` | Avaliação de qualidade do recorte autorizado e filtrado. |
 | `GET /api/v1/analytics/filters` | Valores disponíveis e intervalo de datas. |
 | `GET /api/v1/analytics/orders/{order_id}` | Detalhe de um pedido; `404` se não encontrado. |
 
 Datas inválidas, intervalo invertido ou dimensão inválida retornam `422`. Dataset ausente retorna `503` com `detail.code=analytics_data_unavailable`; dataset vazio, duplicado ou incompatível com o schema retorna `500` com `detail.code=analytics_data_invalid`. Ambos usam um envelope `detail` com `code` e `message`. Os endpoints existentes `/` e `/health` mantêm suas respostas e status.
+
+## Qualidade dos Dados
+
+`GET /api/v1/analytics/data-quality` aplica a mesma sessão Demo, escopo regional e filtros dos dashboards antes de avaliar o recorte. Não há score geral nem pesos: cada dimensão informa seu próprio percentual, arredondado em duas casas.
+
+| Dimensão | Regra | Fórmula |
+| --- | --- | --- |
+| Identificadores | `order_id` não pode se repetir. | IDs repetidos / registros avaliados. |
+| Campos obrigatórios | Os 12 campos obrigatórios do contrato devem estar preenchidos. | Valores preenchidos / (registros avaliados × 12). |
+| Unidades | `units` deve ser maior que zero. | Registros válidos / registros avaliados. |
+| Valores monetários | Receita, desconto e custo devem ser não negativos; desconto não pode superar receita bruta. | Registros válidos / registros avaliados. |
+| Consistência temporal | Pedido ≤ envio ≤ entrega, prazo prometido não pode anteceder o pedido e as datas exigidas devem corresponder ao status. | Registros válidos / registros avaliados. |
+| Status | Quantidade e participação de cada status válido. | Registros do status / registros avaliados. |
+
+A avaliação opera somente depois do carregamento e da validação Pydantic. Arquivo ausente, vazio, incompatível com o schema ou com IDs duplicados impede a avaliação e retorna os erros de dados existentes; não é convertido em percentual de qualidade.
 
 ## Sessão Demo e Escopo Regional
 
@@ -66,7 +82,7 @@ O login Demo não usa senha, credenciais externas ou autenticação de produçã
 
 | Método e caminho | Acesso | Resultado |
 | --- | --- | --- |
-| `GET /api/v1/demo-auth/profiles` | Público | Catálogo dos quatro perfis Demo. |
+| `GET /api/v1/demo-auth/profiles` | Público | Catálogo dos cinco perfis Demo. |
 | `POST /api/v1/demo-auth/session` | Público | Cria sessão para `profile_id` informado no JSON. |
 | `GET /api/v1/demo-auth/session` | `X-Demo-Session` | Retorna a identidade associada à sessão. |
 | `DELETE /api/v1/demo-auth/session` | `X-Demo-Session` | Revoga a sessão; retorna `204`. |
@@ -79,6 +95,7 @@ O identificador retornado em `session_id` deve ser enviado no cabeçalho HTTP `X
 | `manager_south` | Gerente | `Sul` |
 | `manager_southeast` | Gerente | `Sudeste` |
 | `director_all` | Diretor | Todas as regiões do conjunto Demo |
+| `data_engineer_all` | TI / Dados | Todas as regiões do conjunto Demo |
 
 O backend resolve o perfil pelo identificador de sessão e aplica o escopo antes de calcular KPIs, tendências e comparações. Para perfis regionais, omitir o filtro `region` significa usar sua região autorizada; enviar outra região retorna `403` com `region_scope_conflict`. `/filters` lista apenas regiões permitidas. A consulta de pedido fora do escopo retorna `404` com `order_not_found`, sem revelar se o ID existe. O Diretor pode consultar todas as regiões ou escolher uma região no filtro. `/` e `/health` permanecem públicos e sem alteração de contrato.
 

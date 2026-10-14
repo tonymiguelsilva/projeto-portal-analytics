@@ -1,5 +1,5 @@
-const SESSION_STORAGE_KEY = 'datalens.demo.session-id'
-const SESSION_INVALIDATED_EVENT = 'datalens:demo-session-invalidated'
+const SESSION_STORAGE_KEY = 'dataclyra.demo.session-id'
+const SESSION_INVALIDATED_EVENT = 'dataclyra:demo-session-invalidated'
 
 export const DEMO_SESSION_HEADER = 'X-Demo-Session'
 

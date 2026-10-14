@@ -18,7 +18,7 @@ class DemoAuthApiTests(unittest.IsolatedAsyncioTestCase):
         await self.lifespan_context.__aexit__(None, None, None)
         self.settings_patch.stop()
 
-    async def test_profiles_endpoint_lists_the_four_approved_profiles(self) -> None:
+    async def test_profiles_endpoint_lists_the_five_approved_profiles(self) -> None:
         status, profiles = await asgi_get(app, "/api/v1/demo-auth/profiles")
 
         self.assertEqual(status, 200)
@@ -29,8 +29,10 @@ class DemoAuthApiTests(unittest.IsolatedAsyncioTestCase):
                 "manager_south",
                 "manager_southeast",
                 "director_all",
+                "data_engineer_all",
             ],
         )
+        self.assertEqual(profiles[-1]["role"], "data_engineer")
 
     async def test_session_start_identity_logout_and_revocation(self) -> None:
         start_status, created, _ = await asgi_request(

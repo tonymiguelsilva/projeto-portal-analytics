@@ -18,6 +18,8 @@ class DemoSessionStoreTests(unittest.TestCase):
             ("Sudeste",),
         )
         self.assertIsNone(DEMO_PROFILES["director_all"].allowed_regions)
+        self.assertIsNone(DEMO_PROFILES["data_engineer_all"].allowed_regions)
+        self.assertEqual(DEMO_PROFILES["data_engineer_all"].role, "data_engineer")
 
     def test_session_identifier_is_opaque_and_resolves_profile(self) -> None:
         store = DemoSessionStore()

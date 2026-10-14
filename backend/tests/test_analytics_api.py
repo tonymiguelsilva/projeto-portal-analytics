@@ -76,6 +76,35 @@ class AnalyticsApiTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(operations_status, 200)
         self.assertIn("cancellation_rate_pct", operations["metrics"])
 
+    async def test_data_quality_respects_filters_and_demo_scope(self) -> None:
+        status, body, _ = await asgi_request(
+            app,
+            "POST",
+            "/api/v1/demo-auth/session",
+            json_body={"profile_id": "data_engineer_all"},
+        )
+        self.assertEqual(status, 200)
+        technical_headers = {"X-Demo-Session": json.loads(body)["session_id"]}
+        status, quality = await asgi_get(
+            app,
+            "/api/v1/analytics/data-quality",
+            {"region": "Norte", "start_date": "2026-01-01", "end_date": "2026-03-31"},
+            technical_headers,
+        )
+
+        self.assertEqual(status, 200)
+        # The TI/Dados profile has all regions available. Both Norte orders in the
+        # inclusive 2026-01-01 to 2026-03-31 interval must be evaluated.
+        self.assertEqual(quality["records_evaluated"], 2)
+        self.assertEqual(quality["duplicate_order_ids"], 0)
+        self.assertEqual(quality["units"]["valid_pct"], 100.0)
+        self.assertIsInstance(quality["duplicate_order_id_pct"], float)
+        self.assertIsInstance(quality["required_fields"]["completeness_pct"], float)
+        self.assertIsInstance(quality["monetary_values"]["valid_pct"], float)
+        self.assertIsInstance(quality["temporal_consistency"]["valid_pct"], float)
+        for item in quality["status_distribution"]:
+            self.assertIsInstance(item["percentage"], float)
+
     async def test_date_range_validation_returns_422(self) -> None:
         status, payload = await asgi_get(
             app,

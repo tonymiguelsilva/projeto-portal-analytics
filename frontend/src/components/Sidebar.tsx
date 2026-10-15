@@ -1,4 +1,5 @@
-import { Activity, BarChart3, BookOpen, Bot, Database, GitBranch, LayoutDashboard, LogOut, ServerCog, UserRound } from 'lucide-react'
+import { Activity, BarChart3, BookOpen, Bot, Database, GitBranch, LayoutDashboard, LogOut, ServerCog, UserRound, X } from 'lucide-react'
+import { useEffect } from 'react'
 import type { LucideIcon } from 'lucide-react'
 import { NAV_ITEMS } from '../types/navigation'
 import type { ViewId } from '../types/navigation'
@@ -9,6 +10,8 @@ interface SidebarProps {
   onNavigate: (view: ViewId) => void
   identity: DemoProfile
   onLogout: () => void
+  mobileOpen: boolean
+  onCloseMobileMenu: () => void
 }
 
 const NAV_ICONS: Record<ViewId, LucideIcon> = {
@@ -22,9 +25,20 @@ const NAV_ICONS: Record<ViewId, LucideIcon> = {
   catalog: BookOpen,
 }
 
-function Sidebar({ activeView, onNavigate, identity, onLogout }: SidebarProps) {
+function Sidebar({ activeView, onNavigate, identity, onLogout, mobileOpen, onCloseMobileMenu }: SidebarProps) {
+  useEffect(() => {
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onCloseMobileMenu()
+    }
+    window.addEventListener('keydown', closeOnEscape)
+    return () => window.removeEventListener('keydown', closeOnEscape)
+  }, [onCloseMobileMenu])
+
   return (
-    <aside className="sidebar">
+    <aside id="primary-sidebar" className={`sidebar${mobileOpen ? ' is-mobile-open' : ''}`}>
+      <button className="sidebar-close" type="button" aria-label="Fechar menu de navegação" onClick={onCloseMobileMenu}>
+        <X size={20} aria-hidden="true" />
+      </button>
       <button
         className="brand"
         type="button"

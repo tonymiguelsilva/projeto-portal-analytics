@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
-import { AlertTriangle, Download, LoaderCircle, RefreshCw } from 'lucide-react'
+import { AlertTriangle, Download, LoaderCircle, Menu, RefreshCw } from 'lucide-react'
 import ConnectionStatus from './components/ConnectionStatus'
 import DashboardFilters from './components/DashboardFilters'
 import Sidebar from './components/Sidebar'
@@ -44,6 +44,7 @@ function App() {
   const [sessionState, setSessionState] = useState<SessionState>({ status: 'checking' })
   const [sessionCheckKey, setSessionCheckKey] = useState(0)
   const [activeView, setActiveView] = useState<ViewId>('overview')
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [filters, setFilters] = useState<AnalyticsFilters>({})
   const [exportState, setExportState] = useState<{ loading: boolean; message: string }>({ loading: false, message: '' })
   const [filterOptions, setFilterOptions] = useState<FilterOptionsResponse | null>(null)
@@ -145,6 +146,10 @@ function App() {
   }, [activeProfileId])
 
   const updateFilters = (nextFilters: AnalyticsFilters) => setFilters(nextFilters)
+  const navigateTo = (view: ViewId) => {
+    setActiveView(view)
+    setIsMobileMenuOpen(false)
+  }
   const exportFilteredOrders = async () => {
     setExportState({ loading: true, message: '' })
     try {
@@ -172,6 +177,7 @@ function App() {
   }
 
   const handleLogout = async () => {
+    setIsMobileMenuOpen(false)
     setFilterOptions(null)
     setFilterOptionsProfileId(null)
     setFilterOptionsErrorState(null)
@@ -224,14 +230,20 @@ function App() {
 
   return (
     <div className="app-shell">
+      {isMobileMenuOpen && <button className="sidebar-backdrop" type="button" aria-label="Fechar menu de navegação" onClick={() => setIsMobileMenuOpen(false)} />}
       <Sidebar
         activeView={activeView}
-        onNavigate={setActiveView}
+        onNavigate={navigateTo}
         identity={sessionState.profile}
         onLogout={() => void handleLogout()}
+        mobileOpen={isMobileMenuOpen}
+        onCloseMobileMenu={() => setIsMobileMenuOpen(false)}
       />
       <div className="workspace">
         <header className="topbar">
+          <button className="mobile-menu-toggle" type="button" aria-label="Abrir menu de navegação" aria-expanded={isMobileMenuOpen} aria-controls="primary-sidebar" onClick={() => setIsMobileMenuOpen(true)}>
+            <Menu size={20} aria-hidden="true" />
+          </button>
           <div className="breadcrumbs" aria-label="Localização atual">
             <span>PORTAL</span>
             <span className="breadcrumb-divider">/</span>

@@ -28,6 +28,6 @@ export default function DataClyraAssistant({ filters }: { filters: AnalyticsFilt
       <div className="ai-suggestions" aria-label="Perguntas sugeridas">{SUGGESTIONS.map((item) => <button type="button" key={item} onClick={() => void ask(item)} disabled={loading}>{item}</button>)}</div>
       <form onSubmit={(event) => { event.preventDefault(); void ask(question) }}><label className="visually-hidden" htmlFor="assistant-question">Pergunta para o DataClyra AI</label><input id="assistant-question" value={question} onChange={(event) => setQuestion(event.target.value)} placeholder="Faça uma pergunta…" maxLength={500} disabled={loading} /><button type="submit" disabled={loading || !question.trim()} aria-label="Enviar pergunta"><Send size={16} /></button></form>
     </section>}
-    <button className="ai-launcher" type="button" onClick={() => open ? resetConversation() : setOpen(true)} aria-expanded={open} aria-label={open ? 'Fechar DataClyra AI' : 'Abrir DataClyra AI'}><Bot size={22} /><span>DataClyra AI</span></button>
+    {!open && <button className="ai-launcher" type="button" onClick={() => setOpen(true)} aria-expanded="false" aria-label="Abrir Assistente IA"><Bot size={22} aria-hidden="true" /><span>Assistente IA</span></button>}
   </aside>
 }

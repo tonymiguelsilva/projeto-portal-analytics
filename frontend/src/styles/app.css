@@ -302,6 +302,12 @@
   gap: 12px;
 }
 
+.mobile-menu-toggle,
+.sidebar-close,
+.sidebar-backdrop {
+  display: none;
+}
+
 .export-action { position: relative; }.export-button { display:inline-flex; align-items:center; gap:7px; min-height:34px; padding:0 11px; border:1px solid var(--dl-theme-border); border-radius:7px; color:var(--dl-theme-text-primary); background:var(--dl-theme-surface); font:inherit; font-size:12px; font-weight:700; cursor:pointer; transition:background var(--dl-transition-fast), border-color var(--dl-transition-fast); }.export-button:hover:not(:disabled) { border-color:var(--dl-color-blue); background:var(--dl-color-blue-subtle); }.export-button:disabled { opacity:.65; cursor:wait; }.export-action > span { position:absolute; right:0; top:40px; width:max-content; max-width:220px; padding:6px 8px; border-radius:5px; color:var(--dl-theme-text-primary); background:var(--dl-theme-surface); box-shadow:0 3px 12px rgba(0,0,0,.14); font-size:11px; }
 
 .breadcrumbs {
@@ -522,16 +528,24 @@ h1 {
     grid-template-columns: minmax(0, 1fr);
   }
   .sidebar {
-    position: static;
-    z-index: 6;
-    width: auto;
-    height: auto;
+    position: fixed;
+    z-index: 40;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: min(84vw, 320px);
+    height: 100dvh;
     min-height: 0;
-    gap: 12px;
-    padding: 14px 16px 12px;
-    border-right: 0;
-    border-bottom: 1px solid rgb(244 245 247 / 8%);
+    padding: max(25px, env(safe-area-inset-top)) 17px max(18px, env(safe-area-inset-bottom));
+    border-right: 1px solid rgb(244 245 247 / 7%);
+    border-bottom: 0;
+    box-shadow: 16px 0 35px rgb(17 19 24 / 28%);
+    transform: translateX(-105%);
+    transition: transform var(--dl-transition-standard);
   }
+  .sidebar.is-mobile-open { transform: translateX(0); }
+  .sidebar-backdrop { display: block; position: fixed; z-index: 35; inset: 0; width: 100%; height: 100%; border: 0; background: rgb(17 19 24 / 45%); cursor: default; }
+  .sidebar-close { display: grid; position: absolute; top: max(14px, env(safe-area-inset-top)); right: 14px; width: 36px; height: 36px; place-items: center; border: 1px solid rgb(244 245 247 / 14%); border-radius: var(--dl-radius-sm); color: var(--dl-color-text-light); background: rgb(244 245 247 / 7%); cursor: pointer; }
   .brand-mark {
     width: 34px;
     height: 34px;
@@ -546,37 +560,16 @@ h1 {
     width: 7px;
     height: 7px;
   }
-  .sidebar-rule,
-  .sidebar-label {
-    display: none;
-  }
-  .primary-navigation {
-    display: flex;
-    gap: 6px;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .primary-navigation::-webkit-scrollbar {
-    display: none;
-  }
-  .navigation-item {
-    grid-template-columns: 18px auto 6px;
-    min-width: max-content;
-    min-height: 38px;
-    padding: 0 10px;
-    border-radius: var(--dl-radius-sm);
-  }
-  .navigation-item > span:nth-child(2) {
-    font-size: 12px;
-  }
-  .navigation-marker {
-    width: 5px;
-    height: 5px;
-  }
   .topbar {
     min-height: 58px;
     padding: 0 16px;
   }
+  .mobile-menu-toggle { display: grid; width: 36px; height: 36px; place-items: center; flex: 0 0 auto; border: 1px solid var(--dl-theme-border); border-radius: var(--dl-radius-sm); color: var(--dl-theme-text-primary); background: var(--dl-theme-surface); cursor: pointer; }
+  .breadcrumbs { display: none; }
+  .topbar-actions { min-width: 0; margin-left: auto; gap: 8px; }
+  .connection-status { display: none; }
+  .export-action { display: grid; justify-items: end; }
+  .export-action > span { position: static; width: min(100%, 220px); margin-top: 5px; }
   .theme-toggle .theme-toggle-label {
     display: none;
   }
@@ -601,6 +594,14 @@ h1 {
     padding: 14px 16px;
     font-size: 8px;
   }
+}
+
+@media (max-width: 430px) {
+  .topbar { align-items: flex-start; min-height: 58px; padding-top: 10px; padding-bottom: 10px; }
+  .topbar-actions { flex-wrap: wrap; justify-content: flex-end; }
+  .export-action { display: grid; justify-items: end; }
+  .export-action > span { position: static; width: min(100%, 220px); margin-top: 5px; }
+  .theme-toggle { min-height: 34px; padding: 0 10px; }
 }
 
 @media (max-width: 430px) {

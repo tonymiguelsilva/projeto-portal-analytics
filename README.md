@@ -2,6 +2,15 @@
 
 O DataClyra é uma plataforma web de analytics para explorar indicadores comerciais e operacionais a partir de um conjunto demonstrativo. Ela reúne visualizações, filtros, governança de dados e recursos de apoio à análise em uma experiência responsiva.
 
+![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
+![Pydantic](https://img.shields.io/badge/Pydantic-E92063?logo=pydantic&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
+![Status](https://img.shields.io/badge/status-demo-22C2F4)
+
 ## Visão geral
 
 O projeto demonstra como disponibilizar métricas de negócio com regras de cálculo explícitas, filtros consistentes e escopo regional por perfil Demo. Destina-se a cenários de demonstração, portfólio e aprendizado em engenharia de dados e desenvolvimento de produtos analíticos.
@@ -71,8 +80,8 @@ Em um terminal, na raiz do repositório:
 
 ```powershell
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -r backend\requirements.txt
+.\\.venv\\Scripts\\Activate.ps1
+python -m pip install -r backend\\requirements.txt
 Set-Location backend
 python -m uvicorn app.main:app --reload
 ```
